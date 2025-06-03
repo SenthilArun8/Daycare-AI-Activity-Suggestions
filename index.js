@@ -187,7 +187,7 @@ app.post('/forgot-password', async (req, res) => {
     await user.save();
 
     // Send the reset link to the user's email
-    const resetLink = `https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app//reset-password/${resetToken}`;
+    const resetLink = `https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/reset-password/${resetToken}`;
     await transporter.sendMail({
       to: user.email,
       subject: 'Password Reset Request',

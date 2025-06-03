@@ -1,5 +1,5 @@
 import { RouterProvider } from 'react-router-dom';
-import Hero from '../components/Hero'
+import Hero from '../Components/Hero'
 import StudentListings from '../Components/Students';
 
 

@@ -3,7 +3,7 @@ import { useParams, useLoaderData, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaBirthdayCake } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import ActivitySuggestions from '../components/ActivitySuggestions';
+import ActivitySuggestions from '../Components/ActivitySuggestions';
 
 const StudentPage = ({deleteStudent}) => {
     const navigate = useNavigate();
