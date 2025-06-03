@@ -18,8 +18,8 @@ const Students = ({ isHome = false }) => {
 
     const fetchStudents = async () => {
       const apiUrl = isHome
-        ? ` https://daycare-ai-activity-suggestions-backend.onrender.com/students?_limit=3`
-        : ` https://daycare-ai-activity-suggestions-backend.onrender.com/students`;
+        ? `https://daycare-ai-activity-suggestions-backend.onrender.com/students?_limit=3`
+        : `https://daycare-ai-activity-suggestions-backend.onrender.com/students`;
 
       setLoading(true);
 
