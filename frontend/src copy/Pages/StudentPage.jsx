@@ -108,7 +108,7 @@ const StudentPage = ({deleteStudent}) => {
 }; 
 
 const studentLoader = async ({params}) => {
-    const res = await fetch(`http://localhost:5000/students/${params.id}`);
+    const res = await fetch(`https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/students/${params.id}`);
     const data = await res.json();
     return data;
 }

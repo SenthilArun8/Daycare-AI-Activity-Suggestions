@@ -17,8 +17,9 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // backend 5000
     try {
-      const res = await axios.post(`http://localhost:5000/reset-password/${token}`, { password });
+      const res = await axios.post(`https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/reset-password/${token}`, { password });
       setMessage(res.data.message); // Success message
       setPassword(''); // Clear password field
       // Redirect user to login page after reset

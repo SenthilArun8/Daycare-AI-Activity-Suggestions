@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post('http://localhost:5000/forgot-password', { email });
+      const res = await axios.post('https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/forgot-password', { email });
       setMessage(res.data.message);
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
