@@ -20,7 +20,7 @@ dotenv.config(); // Load env variables from .env
 app.use(cors());
 app.use(express.json());
 
-await mongoose.connect('mongodb+srv://senthil:ebKehWK32zZReogC@cluster0.qfvdb5l.mongodb.net/Daycare')
+await mongoose.connect(MONGODB_URI)
 .then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
@@ -144,23 +144,30 @@ app.post('/register', async (req, res) => {
 // 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log('Login request received:', req.body);
 
   try {
     const user = await User.findOne({ email });
+    console.log('User found:', user);
+
     if (!user) return res.status(400).json({ error: 'Invalid email or password' });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid email or password' });
 
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET, // This must be defined!
+      { expiresIn: '1d' }
+    );
 
     res.json({ token, user: { name: user.name, email: user.email } });
   } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ error: 'Server error during login' });
   }
 });
+
 
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
@@ -280,7 +287,7 @@ app.post('/generate', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running at https://daycare-ai-activity-suggestions-backend.onrender.com/`);
 });
 
 // const msg1Text1 = {text: `{
