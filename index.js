@@ -18,7 +18,6 @@ const MONGODB_URI = process.env.MONGODB_URI;
 dotenv.config(); // Load env variables from .env
 
 const allowedOrigins = [
-  'http://localhost:3000',
   'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app',
   'https://daycare-ai-activity-suggestions-95i3vfwg9.vercel.app'
 ];
