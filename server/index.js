@@ -18,8 +18,8 @@ const MONGODB_URI = process.env.MONGODB_URI;
 dotenv.config(); // Load env variables from .env
 
 const allowedOrigins = [
-  'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app',
-  'https://daycare-ai-activity-suggestions-95i3vfwg9.vercel.app'
+  'daycare-ai-activity-suggestions-git-main-senthilarun8s-projects.vercel.app',
+  'daycare-ai-activity-suggestions.vercel.app'
 ];
 
 const corsOptions = {
@@ -200,7 +200,7 @@ app.post('/forgot-password', async (req, res) => {
     await user.save();
 
     // Send the reset link to the user's email
-    const resetLink = `https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/reset-password/${resetToken}`;
+    const resetLink = `daycare-ai-activity-suggestions.vercel.app/reset-password/${resetToken}`;
     await transporter.sendMail({
       to: user.email,
       subject: 'Password Reset Request',

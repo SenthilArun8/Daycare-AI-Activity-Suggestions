@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/'},
+    port: 'daycare-ai-activity-suggestions.vercel.app/'},
     proxy:{
       '/api':{
         target: ' https://daycare-ai-activity-suggestions-backend.onrender.com/', // Adjust the target to your backend server URL
