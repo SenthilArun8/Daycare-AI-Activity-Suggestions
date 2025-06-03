@@ -17,27 +17,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 dotenv.config(); // Load env variables from .env
 
-const allowedOrigins = [
-  'daycare-ai-activity-suggestions-git-main-senthilarun8s-projects.vercel.app',
-  'daycare-ai-activity-suggestions.vercel.app'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 await mongoose.connect('mongodb+srv://senthil:ebKehWK32zZReogC@cluster0.qfvdb5l.mongodb.net/Daycare')
