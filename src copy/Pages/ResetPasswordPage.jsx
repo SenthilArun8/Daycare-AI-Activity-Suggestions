@@ -22,7 +22,7 @@ export default function ResetPasswordPage() {
       setMessage(res.data.message); // Success message
       setPassword(''); // Clear password field
       // Redirect user to login page after reset
-      setTimeout(() => navigate('/login'), 3000);
+      setTimeout(() => navigate('/login'), 'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/');
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred. Please try again.');
     }

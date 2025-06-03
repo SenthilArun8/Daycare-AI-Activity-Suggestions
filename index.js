@@ -18,7 +18,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 dotenv.config(); // Load env variables from .env
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // in production, replace with your frontend URL
+  origin: 'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/', // in production, replace with your frontend URL
   methods: ['GET', 'POST', 'DELETE'], // restrict HTTP methods if needed
   allowedHeaders: ['Content-Type', 'Authorization'], // adjust headers if needed
   credentials: true // allow credentials if needed (e.g., cookies, HTTP auth)
@@ -187,7 +187,7 @@ app.post('/forgot-password', async (req, res) => {
     await user.save();
 
     // Send the reset link to the user's email
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetLink = `https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app//reset-password/${resetToken}`;
     await transporter.sendMail({
       to: user.email,
       subject: 'Password Reset Request',

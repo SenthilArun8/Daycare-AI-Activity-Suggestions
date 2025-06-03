@@ -67,6 +67,7 @@ Icon?
 
 # File tree exports and documentation artifacts
 file-tree.txt
+filetree.txt
 
 # Coverage reports
 coverage/
