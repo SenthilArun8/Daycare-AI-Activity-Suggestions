@@ -21,7 +21,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await axios.post('https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/register', {
+      const res = await axios.post(' https://daycare-ai-activity-suggestions-backend.onrender.com/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

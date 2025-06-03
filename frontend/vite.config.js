@@ -8,7 +8,7 @@ export default defineConfig({
     port: 'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/'},
     proxy:{
       '/api':{
-        target: 'https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/', // Adjust the target to your backend server URL
+        target: ' https://daycare-ai-activity-suggestions-backend.onrender.com/', // Adjust the target to your backend server URL
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

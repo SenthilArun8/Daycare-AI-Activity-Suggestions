@@ -22,7 +22,7 @@ const addStudent = async (newStudent) => {
     throw new Error('Please log in first');  // Token not found, so throw an error
   }
 
-  const response = await fetch('https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/students', {
+  const response = await fetch(' https://daycare-ai-activity-suggestions-backend.onrender.com/students', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ const addStudent = async (newStudent) => {
 
 // delete student
 const deleteStudent = async (id) => {
-   const res = await fetch(`https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/students/${id}`,{
+   const res = await fetch(` https://daycare-ai-activity-suggestions-backend.onrender.com/students/${id}`,{
    method: 'DELETE', });
  return;
 }

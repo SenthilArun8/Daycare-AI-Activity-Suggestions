@@ -18,8 +18,8 @@ const Students = ({ isHome = false }) => {
 
     const fetchStudents = async () => {
       const apiUrl = isHome
-        ? `https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/students?_limit=3`
-        : `https://backend-1qn7j1ns5-senthilarun8s-projects.vercel.app/students`;
+        ? ` https://daycare-ai-activity-suggestions-backend.onrender.com/students?_limit=3`
+        : ` https://daycare-ai-activity-suggestions-backend.onrender.com/students`;
 
       setLoading(true);
 
