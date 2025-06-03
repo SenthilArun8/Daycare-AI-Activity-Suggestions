@@ -13,10 +13,11 @@ export default function LoginPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
   };
+  console.log("LoginPage rendered");
 
   const handleSubmit = async (e) => {
   e.preventDefault();
-
+  console.log('Form submitted:', formData); // Log the form data
   try {
     const response = await axios.post('https://daycare-ai-activity-suggestions-backend.onrender.com/login', formData);
 
