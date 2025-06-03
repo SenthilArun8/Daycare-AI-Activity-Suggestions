@@ -17,11 +17,25 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 dotenv.config(); // Load env variables from .env
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app',
+  'https://daycare-ai-activity-suggestions-95i3vfwg9.vercel.app'
+];
+
 const corsOptions = {
-  origin: 'https://daycare-ai-activity-suggestions-qczyx1qmd.vercel.app/', // in production, replace with your frontend URL
-  methods: ['GET', 'POST', 'DELETE'], // restrict HTTP methods if needed
-  allowedHeaders: ['Content-Type', 'Authorization'], // adjust headers if needed
-  credentials: true // allow credentials if needed (e.g., cookies, HTTP auth)
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
 
 app.use(cors(corsOptions));
