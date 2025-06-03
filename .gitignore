@@ -1,0 +1,72 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# dotenv environment files
+.env
+.env.*
+
+# npm/yarn/pnpm logs and lock files
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+.vite/
+.vite-temp/
+
+# Cache
+.cache/
+.nyc_output/
+coverage/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+
+# Misc
+students.json
+*.pid
+*.pids
+*.seed
+*.tgz
+
+# PM2 process files
+pids
+*.pid
+
+# Test output
+test-output/
+junit.xml
+
+# Mac system files
+Icon?
+
+# VSCode settings except extensions.json
+!.vscode/extensions.json
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Local database files
+*.local.db
+*.sqlite
+
+# File tree exports and documentation artifacts
+file-tree.txt
+
+# Coverage reports
+coverage/
