@@ -56,7 +56,7 @@ A MERN-stack web app designed to assist early childhood educators by generating 
 - `DELETE /students/:id` – Remove student by ID  
 
 ### 🤖 AI Suggestions
-- `POST /generate` – Get AI-generated activity ideas based on student's age
+- `POST /generate` – Get AI-generated activity ideas based on student's age, developmental stage, interests, and other relevant information
 
 ---
 
@@ -64,8 +64,7 @@ A MERN-stack web app designed to assist early childhood educators by generating 
 
 - 🧾 User dashboard for managing activity history  
 - 📊 Progress tracking and analytics  
-- 🧠 Multiple activity category options (e.g., Art, Motor Skills, Language)  
-- 🌐 Multilingual support  
+- 🌐 Cyprus End-to-End Testing
 
 ---
 
