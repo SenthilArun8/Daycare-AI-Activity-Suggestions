@@ -14,6 +14,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
+console.log('MONGODB_URI:', process.env.MONGODB_URI);
+
 
 dotenv.config(); // Load env variables from .env
 
