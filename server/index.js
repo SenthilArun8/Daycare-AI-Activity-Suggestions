@@ -17,7 +17,10 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 dotenv.config(); // Load env variables from .env
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://daycare-ai-activity-suggestions.vercel.app',
+  credentials: true, // if you're using cookies or auth headers
+}));
 app.use(express.json());
 
 await mongoose.connect(MONGODB_URI)
