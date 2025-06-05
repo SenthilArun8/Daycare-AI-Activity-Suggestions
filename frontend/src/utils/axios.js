@@ -8,8 +8,8 @@ const axiosInstance = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+  }
+  // withCredentials: true,
 });
 
 // Add a request interceptor
