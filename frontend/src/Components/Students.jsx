@@ -3,6 +3,7 @@ import Student from './Student';
 import Spinner from './Spinner';
 import { useUser } from '../contexts/UserContext';
 import BlurredBackground from './BlurredBackground';
+import axiosInstance from '../utils/axios';
 
 const Students = ({ isHome = false }) => {
   const [students, setStudents] = useState([]);
@@ -19,27 +20,26 @@ const Students = ({ isHome = false }) => {
 
     const fetchStudents = async () => {
       const apiUrl = isHome
-        ? `/api/students?_limit=3`
-        : `/api/students`;
+        ? `/students?_limit=3`
+        : `/students`;
 
       setLoading(true);
 
       try {
-        const res = await fetch(apiUrl, {
-          method: 'GET',
+        const response = await axiosInstance.get(apiUrl, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) {
-          throw new Error('Failed to fetch students');
-        }
+        console.log('Fetched students:', response.data);
+        const data = Array.isArray(response.data)
+          ? response.data
+          : response.data.students || [];
 
-        const data = await res.json();
         setStudents(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Failed to fetch students');
       } finally {
         setLoading(false);
       }
@@ -48,8 +48,8 @@ const Students = ({ isHome = false }) => {
     fetchStudents();
   }, [token, isHome]);
 
-  if (isHome && !token){
-    return null; // Don't render anything if on home page and no token
+  if (isHome && !token) {
+    return null;
   }
 
   return (
@@ -67,20 +67,25 @@ const Students = ({ isHome = false }) => {
           <div className="text-center text-red-600">{`Error: ${error}`}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {students.map((student) => (
-              <div key={student._id} className="relative">
-                <Student person={student} />
-                <button
-                  className="absolute top-2 right-2 p-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full shadow transition flex items-center justify-center z-10"
-                  onClick={() => window.location.href = `/saved-activities/${student._id}`}
-                  title="View Saved Activities"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
-                    <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            ))}
+            {Array.isArray(students) ? (
+              students.map((student) => (
+                <div key={student._id} className="relative">
+                  <Student person={student} />
+                  <button
+                    className="absolute top-2 right-2 p-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full shadow transition flex items-center justify-center z-10"
+                    onClick={() => window.location.href = `/saved-activities/${student._id}`}
+                    title="View Saved Activities"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+                      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="text-red-500 col-span-full">Student data is invalid.</div>
+            )}
+
             {/* Add Student Card */}
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-emerald-300 bg-white/40 rounded-xl min-h-[220px] h-full cursor-pointer hover:bg-emerald-50 transition group">
               <a href="/add-student" className="flex flex-col items-center justify-center w-full h-full py-8">
@@ -97,6 +102,6 @@ const Students = ({ isHome = false }) => {
       </div>
     </section>
   );
-}
+};
 
 export default Students;
