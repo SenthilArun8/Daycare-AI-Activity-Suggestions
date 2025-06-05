@@ -1,7 +1,6 @@
-import { RouterProvider } from 'react-router-dom';
 import Hero from '../Components/Hero'
 import Students from '../Components/Students';
-
+import SamplePage from './SamplePage';
 
 const HomePage = () => {
     return(
@@ -10,7 +9,8 @@ const HomePage = () => {
             title='Classweave AI'
             subtitle='Find personalized activities for toddlers and preschoolers'
          />
-         <Students />
+         <SamplePage />
+         <Students isHome={true} />
      </>
     )
 }

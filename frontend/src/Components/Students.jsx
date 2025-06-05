@@ -48,6 +48,10 @@ const Students = ({ isHome = false }) => {
     fetchStudents();
   }, [token, isHome]);
 
+  if (isHome && !token){
+    return null; // Don't render anything if on home page and no token
+  }
+
   return (
     <section className="min-h-screen flex items-center justify-center relative bg-white isolate px-6 py-12 lg:px-8">
       <BlurredBackground />
@@ -77,6 +81,17 @@ const Students = ({ isHome = false }) => {
                 </button>
               </div>
             ))}
+            {/* Add Student Card */}
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-emerald-300 bg-white/40 rounded-xl min-h-[220px] h-full cursor-pointer hover:bg-emerald-50 transition group">
+              <a href="/add-student" className="flex flex-col items-center justify-center w-full h-full py-8">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full border-2 border-emerald-400 bg-white/70 group-hover:bg-emerald-100 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="#059669" className="w-10 h-10">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <span className="mt-4 text-emerald-700 font-semibold text-lg opacity-80">Add Student</span>
+              </a>
+            </div>
           </div>
         )}
       </div>

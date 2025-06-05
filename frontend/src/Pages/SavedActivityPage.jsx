@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -6,8 +6,9 @@ const SavedActivityPage = () => {
   const { id } = useParams(); // student id
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [compareActivities, setCompareActivities] = useState([]);
+  const [error, setError] = useState('');  const [compareActivities, setCompareActivities] = useState([]);
+  const [showCompareCounter, setShowCompareCounter] = useState(false);
+  const compareRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,18 +28,34 @@ const SavedActivityPage = () => {
     };
     fetchStudent();
   }, [id]);
-
   const handleCompare = (activity) => {
     setCompareActivities(prev => {
+      let newActivities;
       // If already selected, remove it
       if (prev.some(a => a._id === activity._id)) {
-        return prev.filter(a => a._id !== activity._id);
+        newActivities = prev.filter(a => a._id !== activity._id);
+      } else {
+        // Only allow two activities to be compared
+        if (prev.length === 2) {
+          newActivities = [prev[1], activity];
+        } else {
+          newActivities = [...prev, activity];
+        }
       }
-      // Only allow two activities to be compared
-      if (prev.length === 2) {
-        return [prev[1], activity];
+      
+      // Show counter when adding first item
+      if (newActivities.length === 1) {
+        setShowCompareCounter(true);
       }
-      return [...prev, activity];
+      
+      // Scroll to comparison section when second item is added
+      if (newActivities.length === 2) {
+        setTimeout(() => {
+          compareRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+      
+      return newActivities;
     });
   };
 
@@ -102,13 +119,25 @@ const SavedActivityPage = () => {
                   <div className="text-xs text-gray-500 mb-1">
                     Notes: {activity.notes}
                   </div>
-                )}
-                {/* Compare button at the bottom */}
+                )}                {/* Compare button at the bottom */}
                 <button
-                  className="mt-4 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded w-full"
+                  className={`mt-4 px-3 py-2 ${
+                    compareActivities.some(a => a._id === activity._id)
+                      ? 'bg-emerald-600 hover:bg-emerald-700'
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  } text-white rounded w-full flex items-center justify-center gap-2`}
                   onClick={() => handleCompare(activity)}
                 >
-                  Compare
+                  {compareActivities.some(a => a._id === activity._id) ? (
+                    <>
+                      Selected
+                      <span className="bg-white text-emerald-600 rounded-full w-5 h-5 flex items-center justify-center text-sm font-bold">
+                        {compareActivities.findIndex(a => a._id === activity._id) + 1}
+                      </span>
+                    </>
+                  ) : (
+                    'Compare'
+                  )}
                 </button>
               </div>
             </div>
@@ -116,9 +145,15 @@ const SavedActivityPage = () => {
         </div>
       ) : (
         <div className="text-gray-600">No activities saved yet.</div>
+      )}      {/* Floating comparison counter */}
+      {showCompareCounter && compareActivities.length < 2 && compareActivities.length > 1 (
+        <div className="fixed bottom-4 right-4 bg-emerald-600 text-white px-4 py-2 rounded-full shadow-lg animate-bounce">
+          Select {2 - compareActivities.length} more activity to compare
+        </div>
       )}
+      
       {compareActivities.length === 2 && (
-        <div className="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-lg shadow">
+        <div ref={compareRef} className="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-lg shadow">
           <h3 className="text-xl font-bold text-emerald-800 mb-4 text-center">Activity Comparison</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {compareActivities.map((activity, idx) => (
@@ -148,8 +183,10 @@ const SavedActivityPage = () => {
             ))}
           </div>
           <button
-            className="mt-6 px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded block mx-auto"
-            onClick={() => setCompareActivities([])}
+            className="mt-6 px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded block mx-auto"            onClick={() => {
+              setCompareActivities([]);
+              setShowCompareCounter(false);
+            }}
           >
             Clear Comparison
           </button>

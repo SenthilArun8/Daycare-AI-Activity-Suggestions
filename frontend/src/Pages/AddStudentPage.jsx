@@ -35,19 +35,24 @@ const AddStudentPage = ({addStudentSubmit}) => {
       }
     ]);
 
+  const { user, token } = useUser();
   const navigate = useNavigate();
+
+  // Redirect to login if not logged in (using UserContext)
+  React.useEffect(() => {
+    if (!user || !token) {
+      navigate('/login');
+    }
+  }, [user, token, navigate]);
 
   const submitForm = (e) => {
     e.preventDefault();
 
     const generatedId = uuidv4();
-    const token = localStorage.getItem('token');
-
     if (!token) {
       toast.error('Please log in first');
       return;
     }
-
     const userId = JSON.parse(atob(token.split('.')[1])).id;
 
     const newStudent = {
@@ -82,8 +87,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
       .catch((error) => {
         toast.error(`Error: ${error.message}`);
       });
-
-    return navigate('/students');
   }
 
   const tutorialSteps = [
@@ -108,6 +111,16 @@ const AddStudentPage = ({addStudentSubmit}) => {
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showTutorial, setShowTutorial] = useState(true);
 
+  // Add state for "Don't show tutorial again"
+  const [dontShowTutorial, setDontShowTutorial] = useState(
+    localStorage.getItem('hideAddStudentTutorial') === 'true'
+  );
+
+  // Hide tutorial if user chose not to show again
+  React.useEffect(() => {
+    if (dontShowTutorial) setShowTutorial(false);
+  }, [dontShowTutorial]);
+
   const isSpotlight = (stepKey) => showTutorial && tutorialSteps[tutorialStep].key === stepKey;
 
   const stepKeyToIndex = Object.fromEntries(tutorialSteps.map((step, idx) => [step.key, idx]));
@@ -116,6 +129,18 @@ const AddStudentPage = ({addStudentSubmit}) => {
     if (showTutorial && tutorialStep !== stepKeyToIndex[stepKey]) {
       setTutorialStep(stepKeyToIndex[stepKey]);
     }
+  };
+
+  // Handler for "Don't show again"
+  const handleDontShowTutorial = () => {
+    setDontShowTutorial(true);
+    setShowTutorial(false);
+    localStorage.setItem('hideAddStudentTutorial', 'true');
+  };
+
+  // Handler for scroll to top
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Helper to render the tutorial tooltip inside the highlighted field
@@ -150,7 +175,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
       {showTutorial && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 pointer-events-none"></div>
       )}
-      <div className="w-full max-w-2xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg relative z-50">
+      <div className="w-full max-w-2xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg relative z-30">
         {/* Top padding before form */}
         <div className="py-4" />
         <form onSubmit={submitForm}>
@@ -395,6 +420,24 @@ const AddStudentPage = ({addStudentSubmit}) => {
         </form>
         {/* Bottom padding after form */}
         <div className="py-4" />
+      </div>
+      {/* Side floating buttons */}
+      <div className="hidden md:flex flex-col gap-4 fixed bottom-8 right-8 z-50">
+        <button
+          className="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded shadow hover:bg-emerald-50 font-semibold"
+          onClick={handleScrollToTop}
+          type="button"
+        >
+          ↑ Top
+        </button>
+        {showTutorial && (
+          <button
+            className="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded shadow hover:bg-emerald-50 font-semibold"
+            onClick={handleDontShowTutorial}
+          >
+            Don&apos;t show tutorial again
+          </button>
+        )}
       </div>
     </div>
   )

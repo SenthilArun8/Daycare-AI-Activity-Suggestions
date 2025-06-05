@@ -389,7 +389,8 @@ app.delete('/students/:studentId/activity/:activityId', verifyToken, async (req,
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:5000`);
+  const server = app.address ? app.address() : { address: 'localhost', port };
+  console.log(`Server is running at http://${server.address}:${server.port}`);
 });
 
 
