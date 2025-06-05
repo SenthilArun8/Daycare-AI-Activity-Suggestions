@@ -11,7 +11,7 @@ export default defineConfig({
       '/api': {
         target: 'https://daycare-ai-activity-suggestions-backend.onrender.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        rewrite: (path) => path
       }
     }
   }
