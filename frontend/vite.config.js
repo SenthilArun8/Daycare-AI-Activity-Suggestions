@@ -9,7 +9,7 @@ export default defineConfig({
     port: 3000, // make sure this part is a number, not a string, wasted 4 hours bc of that
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://daycare-ai-activity-suggestions-backend.onrender.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
