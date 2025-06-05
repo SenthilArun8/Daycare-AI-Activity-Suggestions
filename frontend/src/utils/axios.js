@@ -1,10 +1,15 @@
 import axios from 'axios';
 
-const axiosInstance = axios.create({  baseURL: '/api',
+const baseURL = import.meta.env.PROD
+  ? 'https://daycare-ai-activity-suggestions-backend.onrender.com'
+  : '/api';
+
+const axiosInstance = axios.create({
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true
+  withCredentials: true,
 });
 
 // Add a request interceptor
@@ -16,9 +21,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default axiosInstance;
