@@ -11,7 +11,6 @@ export default defineConfig({
         target: 'https://daycare-ai-activity-suggestions-backend.onrender.com',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
