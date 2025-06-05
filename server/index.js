@@ -22,7 +22,7 @@ console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://daycare-ai-activity-suggestio-git-ce06d5-senthilarun8s-projects.vercel.app', 'https://daycare-ai-activity-suggestions-dbr1sl6ia.vercel.app', 'https://daycare-ai-activity-suggestions.vercel.app'],
+  origin: ['http://localhost:3000', 'https://daycare-ai-activity-suggestio-git-ce06d5-senthilarun8s-projects.vercel.app', 'https://daycare-ai-activity-suggestions-dbr1sl6ia.vercel.app', 'https://daycare-ai-activity-suggestions.vercel.app/'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
