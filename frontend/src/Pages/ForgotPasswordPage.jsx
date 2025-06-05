@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post(' https://daycare-ai-activity-suggestions-backend.onrender.com/forgot-password', { email });
+      const res = await axios.post('/api/forgot-password', { email });
       setMessage(res.data.message);
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');

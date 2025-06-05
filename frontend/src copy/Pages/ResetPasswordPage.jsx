@@ -18,11 +18,11 @@ export default function ResetPasswordPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post(` https://daycare-ai-activity-suggestions-backend.onrender.com/reset-password/${token}`, { password });
+      const res = await axios.post(`/api/reset-password/${token}`, { password });
       setMessage(res.data.message); // Success message
       setPassword(''); // Clear password field
       // Redirect user to login page after reset
-      setTimeout(() => navigate('/login'), 'daycare-ai-activity-suggestions.vercel.app/');
+      setTimeout(() => navigate('/login'), 'http://localhost:5000');
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred. Please try again.');
     }

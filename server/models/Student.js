@@ -6,6 +6,9 @@ const activitySchema = new mongoose.Schema({
   difficulty_level: String,
   date: String,
   notes: String,
+  title: String, // For AI activities
+  why_it_works: String, // For AI activities
+  skills_supported: String, // For AI activities
 });
 
 const studentSchema = new mongoose.Schema({
