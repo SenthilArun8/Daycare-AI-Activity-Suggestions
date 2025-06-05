@@ -22,8 +22,10 @@ console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true, // if you're using cookies or auth headers
+  origin: ['http://localhost:3000', 'https://daycare-ai-activity-suggestio-git-ce06d5-senthilarun8s-projects.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 

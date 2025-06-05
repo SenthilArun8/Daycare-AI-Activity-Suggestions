@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { useUser } from '../contexts/UserContext'; 
+import { useUser } from '../contexts/UserContext';
+import axiosInstance from '../utils/axios';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   console.log('Form submitted:', formData); // Log the form data
   try {
-    const response = await axios.post(`/api/login`, formData);
+    const response = await axiosInstance.post('/api/login', formData);
 
     console.log('Response:', response.data);  // Log the entire response
 
