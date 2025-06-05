@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import axios from 'axios';
+import axiosInstance from '../utils/axios';
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -18,7 +19,7 @@ const Navbar = () => {
       setStudentsLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('/api/students', {
+        const response = await axiosInstance.get('/students', { // Fixed the error for this part 
           headers: { Authorization: `Bearer ${token}` }
         });
         setStudents(response.data);

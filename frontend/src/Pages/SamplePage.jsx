@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Student from '../Components/Student';
+import api from '../utils/axios';
 
 const SAMPLE_STUDENT_IDS = [
   '683d57f853223cfb0c1e5723',
@@ -11,25 +12,33 @@ const SamplePage = () => {
   const [sampleLoading, setSampleLoading] = useState(true);
   const [sampleError, setSampleError] = useState(null);
 
-  useEffect(() => {
-    Promise.all(
-      SAMPLE_STUDENT_IDS.map(id =>
-        fetch(`/api/students/${id}`)
-          .then(res => {
-            if (!res.ok) throw new Error('Failed to load sample student');
-            return res.json();
-          })
-      )
+
+// ...existing code...
+
+useEffect(() => {
+  setSampleLoading(true);
+  Promise.all(
+    SAMPLE_STUDENT_IDS.map(id =>
+      api.get(`/students/${id}`)
+        .then(response => response.data)
+        .catch(error => {
+          console.error(`Error fetching student ${id}:`, error);
+          return null; // Return null for failed requests
+        })
     )
-      .then(dataArr => {
-        setSampleStudents(dataArr);
-        setSampleLoading(false);
-      })
-      .catch(err => {
-        setSampleError(err.message);
-        setSampleLoading(false);
-      });
-  }, []);
+  )
+    .then(dataArr => {
+      setSampleStudents(dataArr.filter(Boolean)); // Filter out null values
+      setSampleLoading(false);
+    })
+    .catch(err => {
+      console.error('Error in Promise.all:', err);
+      setSampleError(err.response?.data?.message || 'Failed to fetch student data');
+      setSampleLoading(false);
+    });
+}, []);
+
+// ...existing code...
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-white px-0 py-0">
