@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const baseURL = import.meta.env.PROD
   ? 'https://daycare-ai-activity-suggestions-backend.onrender.com'
-  : '/api';
+  : '';
 
 const axiosInstance = axios.create({
   baseURL,
