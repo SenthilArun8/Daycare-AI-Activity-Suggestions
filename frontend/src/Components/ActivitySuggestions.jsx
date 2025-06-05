@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../utils/axios'; // adjust the path if needed
 import ReactMarkdown from 'react-markdown';
 
 
@@ -41,7 +41,7 @@ If the toddler failed the activity, provide 5 diverse activity options that supp
     setLoading(true);
     setCarouselIndex(0); // Reset to first activity when generating new suggestions
     try {
-      const res = await axios.post('/api/generate', {
+      const res = await axios.post('/generate', {
         prompt: buildPrompt()
       });
       setResponse(res.data.response);
@@ -65,7 +65,7 @@ If the toddler failed the activity, provide 5 diverse activity options that supp
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `/api/students/${student._id}/activity`,
+        `/students/${student._id}/activity`,
         { activity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +83,7 @@ If the toddler failed the activity, provide 5 diverse activity options that supp
       }
       // Fetch and log all activities for this student after saving
       const token2 = localStorage.getItem('token');
-      const res = await axios.get(`/api/students/${student._id}`, { headers: { Authorization: `Bearer ${token2}` } });
+      const res = await axios.get(`/students/${student._id}`, { headers: { Authorization: `Bearer ${token2}` } });
       console.log('Student activity_history:', res.data.activity_history);
     } catch (err) {
       setSaveStatus('Failed to save activity.');

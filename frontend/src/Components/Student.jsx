@@ -6,6 +6,7 @@ const Student = ({ person }) => { // “I expect a prop called person to be pass
 
     const [showFullDescription, setShowFullDescription] = useState(false);
 
+    
     const capitalizeWords = (str) => {
         if (!str) return '';
         return str

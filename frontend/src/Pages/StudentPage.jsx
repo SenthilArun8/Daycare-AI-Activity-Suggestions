@@ -4,6 +4,8 @@ import { FaArrowLeft, FaBirthdayCake } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ActivitySuggestions from '../Components/ActivitySuggestions';
+import axios from '../utils/axios'; // adjust path as needed
+
 
 const capitalizeFirstLetter = (str) => {
   if (!str) return '';
@@ -112,10 +114,13 @@ const StudentPage = ({deleteStudent}) => {
   );
 }; 
 
-const studentLoader = async ({params}) => {
-    const res = await fetch(`/api/students/${params.id}`);
-    const data = await res.json();
-    return data;
-}
+const studentLoader = async ({ params }) => {
+  try {
+    const res = await axios.get(`/students/${params.id}`);
+    return res.data;
+  } catch (error) {
+    throw new Error('Failed to fetch student');
+  }
+};
 
 export { StudentPage as default, studentLoader };

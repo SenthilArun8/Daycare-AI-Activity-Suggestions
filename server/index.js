@@ -9,12 +9,19 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import Student from './models/Student.js'; 
 import { GoogleGenAI } from '@google/genai';
+import { GoogleAuth } from 'google-auth-library'
 
 dotenv.config(); // Load env variables from .env, must be before mongodb_uri
 
 const app = express();
 const port = 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
+let credentials = null;
+if (process.env.GOOGLE_CREDENTIALS) {
+  credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+} else {
+  console.warn('⚠️ GOOGLE_CREDENTIALS env variable is not set.');
+}
 
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
@@ -234,12 +241,17 @@ app.post('/reset-password/:token', async (req, res) => {
   }
 });
 
+const auth = new GoogleAuth({
+  credentials,
+  scopes: ['https://www.googleapis.com/auth/cloud-platform'], // or a more specific one
+});
 
 // Initialize Vertex with your Cloud project and location
 const ai = new GoogleGenAI({
   vertexai: true,
   project: 'gen-lang-client-0993206169',
-  location: 'global'
+  location: 'global',
+  authClient: auth
 });
 const model = 'gemini-2.0-flash-001';
 
@@ -393,10 +405,10 @@ app.listen(port, () => {
 
 // Client-side code to interact with the AI service
 
-const chat = ai.chats.create({
-  model: model,
-  config: generationConfig
-});
+// const chat = ai.chats.create({
+//   model: model,
+//   config: generationConfig
+// });
 
 async function sendMessage(message) {
   const response = await chat.sendMessageStream({
