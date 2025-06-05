@@ -37,18 +37,18 @@ const Student = ({ person }) => { // “I expect a prop called person to be pass
           <h3 className='text-xl font-bold'>{capitalizeWords(person.name)}</h3>
         </div>
 
-        <div className='mb-5'>{description}</div>
+        <div className='mb-5 text-emerald-900'>{description}</div>
 
         <button
           onClick={() => setShowFullDescription((prevState) => !prevState)}
-          className='text-indigo-500 mb-5 hover:text-indigo-600'
+          className='text-emerald-700 mb-5 hover:text-emerald-800 font-semibold'
         >
           {showFullDescription ? 'Less' : 'More'}
         </button>
 
-        <h3 className='text-indigo-500 mb-2'>Developmental Stage: {capitalizeSentence(person.developmental_stage)}</h3>
+        <h3 className='text-emerald-700 mb-2'>Developmental Stage: <span className='text-emerald-900'>{capitalizeSentence(person.developmental_stage)}</span></h3>
 
-        <div className='border border-gray-100 mb-5'></div>
+        <div className='border border-[#d2b48c] mb-5'></div>
 
         <div className='flex flex-col lg:flex-row justify-between mb-4'>
           <div className='text-orange-700 mb-3'>
@@ -56,8 +56,8 @@ const Student = ({ person }) => { // “I expect a prop called person to be pass
             {person.age_months} months
           </div>
           <Link
-            to={`/students/${person._id}`} // Ensure the name matches the json file
-            className='h-[36px] bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-center text-sm'
+            to={`/students/${person._id}`}
+            className='h-[36px] bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-center text-sm font-semibold transition'
           >
             Read More
           </Link>

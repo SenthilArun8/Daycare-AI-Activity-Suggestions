@@ -108,7 +108,7 @@ const StudentPage = ({deleteStudent}) => {
 }; 
 
 const studentLoader = async ({params}) => {
-    const res = await fetch(` https://daycare-ai-activity-suggestions-backend.onrender.com/students/${params.id}`);
+    const res = await fetch(`/api/students/${params.id}`);
     const data = await res.json();
     return data;
 }

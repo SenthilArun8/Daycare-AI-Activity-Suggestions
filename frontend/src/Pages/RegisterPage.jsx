@@ -21,7 +21,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await axios.post(' https://daycare-ai-activity-suggestions-backend.onrender.com/register', {
+      const res = await axios.post('/api/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

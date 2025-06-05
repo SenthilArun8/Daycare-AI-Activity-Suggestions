@@ -43,7 +43,7 @@ For the activity the toddler failed, provide diverse activity options that suppo
   const handleGenerate = async () => {
     setLoading(true);
     try {
-      const res = await axios.post(' https://daycare-ai-activity-suggestions-backend.onrender.com/generate', {
+      const res = await axios.post('/api/generate', {
         prompt: buildPrompt()
       });
       setResponse(res.data.response);

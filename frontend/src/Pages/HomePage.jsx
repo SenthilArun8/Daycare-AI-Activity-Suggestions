@@ -1,15 +1,16 @@
 import { RouterProvider } from 'react-router-dom';
 import Hero from '../Components/Hero'
-import StudentListings from '../Components/Students';
+import Students from '../Components/Students';
 
 
 const HomePage = () => {
     return(
     <>
          <Hero
-            title='Educator Automation'
+            title='Classweave AI'
             subtitle='Find personalized activities for toddlers and preschoolers'
          />
+         <Students />
      </>
     )
 }

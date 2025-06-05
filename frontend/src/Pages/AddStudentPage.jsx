@@ -86,15 +86,78 @@ const AddStudentPage = ({addStudentSubmit}) => {
     return navigate('/students');
   }
 
+  const tutorialSteps = [
+    { key: 'name', label: 'Name', description: 'Enter the toddler\'s name here.' },
+    { key: 'age', label: 'Age (in months)', description: 'Enter the toddler\'s age in months.' },
+    { key: 'gender', label: 'Gender', description: 'Select the toddler\'s gender.' },
+    { key: 'desc', label: 'Description', description: 'Describe the toddler\'s personality and communication.' },
+    { key: 'personality', label: 'Personality', description: 'Describe the toddler\'s personality traits.' },
+    { key: 'dev', label: 'Developmental Stage', description: 'Describe the toddler\'s developmental stage.' },
+    { key: 'learning', label: 'Preferred Learning Style', description: 'Describe how the toddler learns best.' },
+    { key: 'social', label: 'Social Behavior', description: 'Describe the toddler\'s social behavior.' },
+    { key: 'energy', label: 'Energy Level', description: 'Describe the toddler\'s energy level.' },
+    { key: 'routine', label: 'Daily Routine Notes', description: 'Add notes about the toddler\'s daily routine.' },
+    { key: 'interests', label: 'Interests', description: 'List the toddler\'s interests.' },
+    { key: 'goals', label: 'Goals', description: 'List the goals for the toddler.' },
+    { key: 'activityName', label: 'Recent Activity Name', description: 'Enter the name of the most recent activity.' },
+    { key: 'activityResult', label: 'Recent Activity Result', description: 'Select the result of the most recent activity.' },
+    { key: 'activityDifficulty', label: 'Recent Activity Difficulty', description: 'Select the difficulty level of the most recent activity.' },
+    { key: 'activityObservations', label: 'Recent Activity Observations', description: 'Add any observations for the most recent activity.' },
+  ];
+
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const isSpotlight = (stepKey) => showTutorial && tutorialSteps[tutorialStep].key === stepKey;
+
+  const stepKeyToIndex = Object.fromEntries(tutorialSteps.map((step, idx) => [step.key, idx]));
+
+  const handleSpotlightFocus = (stepKey) => {
+    if (showTutorial && tutorialStep !== stepKeyToIndex[stepKey]) {
+      setTutorialStep(stepKeyToIndex[stepKey]);
+    }
+  };
+
+  // Helper to render the tutorial tooltip inside the highlighted field
+  const TutorialTooltip = ({ step }) => (
+    <div className="absolute left-1/2 -top-2 -translate-x-1/2 -translate-y-full bg-white rounded-lg shadow-lg px-6 py-4 border-2 border-emerald-700 max-w-md text-center z-50">
+      <div className="font-bold text-emerald-800 mb-2">{tutorialSteps[step].label}</div>
+      <div className="text-emerald-900 mb-4">{tutorialSteps[step].description}</div>
+      <div className="flex justify-between">
+        <button
+          className="px-3 py-1 rounded bg-emerald-200 text-emerald-900 font-semibold disabled:opacity-50"
+          onClick={() => setTutorialStep((s) => Math.max(0, s - 1))}
+          disabled={tutorialStep === 0}
+        >Previous</button>
+        {tutorialStep < tutorialSteps.length - 1 ? (
+          <button
+            className="px-3 py-1 rounded bg-emerald-700 text-white font-semibold"
+            onClick={() => setTutorialStep((s) => s + 1)}
+          >Next</button>
+        ) : (
+          <button
+            className="px-3 py-1 rounded bg-emerald-700 text-white font-semibold"
+            onClick={() => setShowTutorial(false)}
+          >Finish</button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f0e6] py-12">
-      <div className="w-full max-w-2xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f0e6] py-12 relative">
+      {/* Tutorial Overlay */}
+      {showTutorial && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 pointer-events-none"></div>
+      )}
+      <div className="w-full max-w-2xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg relative z-50">
         {/* Top padding before form */}
         <div className="py-4" />
         <form onSubmit={submitForm}>
           <h2 className="text-3xl text-center font-bold text-emerald-800 mb-8">Add Toddler Activity Profile</h2>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('name') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Name */}
+            {isSpotlight('name') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Name</label>
             <input
               type="text"
@@ -103,10 +166,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              onFocus={() => handleSpotlightFocus('name')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('age') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Age */}
+            {isSpotlight('age') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Age (in months)</label>
             <input
               type="number"
@@ -115,16 +180,19 @@ const AddStudentPage = ({addStudentSubmit}) => {
               value={ageMonths}
               onChange={(e) => setAgeMonths(e.target.value)}
               required
+              onFocus={() => handleSpotlightFocus('age')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('gender') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Gender */}
+            {isSpotlight('gender') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Gender</label>
             <select
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={gender}
               onChange={(e) => setGender(e.target.value)}
               required
+              onFocus={() => handleSpotlightFocus('gender')}
             >
               <option value="">Select gender</option>
               <option value="male">Male</option>
@@ -133,17 +201,20 @@ const AddStudentPage = ({addStudentSubmit}) => {
             </select>
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('desc') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Description */}
+            {isSpotlight('desc') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Toddler Description</label>
             <textarea
               className="border border-emerald-300 rounded w-full py-2 px-3"
               placeholder="e.g. Calm and observant, communicates clearly in full sentences"
               value={toddlerDescription}
               onChange={(e) => setToddlerDescription(e.target.value)}
+              onFocus={() => handleSpotlightFocus('desc')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('personality') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Personality */}
+            {isSpotlight('personality') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Personality</label>
             <input
               type="text"
@@ -151,20 +222,24 @@ const AddStudentPage = ({addStudentSubmit}) => {
               placeholder="e.g. thoughtful, patient, enjoys quiet play"
               value={personality}
               onChange={(e) => setPersonality(e.target.value)}
+              onFocus={() => handleSpotlightFocus('personality')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('dev') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Developmental Stage */}
+            {isSpotlight('dev') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Developmental Stage</label>
             <textarea
               className="border border-emerald-300 rounded w-full py-2 px-3"
               placeholder="e.g. expanding vocabulary, shows empathy, beginning to ask 'why' questions"
               value={developmentalStage}
               onChange={(e) => setDevelopmentalStage(e.target.value)}
+              onFocus={() => handleSpotlightFocus('dev')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('learning') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Preferred Learning Style */}
+            {isSpotlight('learning') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Preferred Learning Style</label>
             <input
               type="text"
@@ -172,10 +247,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
               placeholder="e.g. visual and auditory"
               value={preferredLearningStyle}
               onChange={(e) => setPreferredLearningStyle(e.target.value)}
+              onFocus={() => handleSpotlightFocus('learning')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('social') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Social Behavior */}
+            {isSpotlight('social') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Social Behavior</label>
             <input
               type="text"
@@ -183,10 +260,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
               placeholder="e.g. prefers small groups, shy with new children"
               value={socialBehavior}
               onChange={(e) => setSocialBehavior(e.target.value)}
+              onFocus={() => handleSpotlightFocus('social')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('energy') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Energy Level */}
+            {isSpotlight('energy') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Energy Level</label>
             <input
               type="text"
@@ -194,21 +273,24 @@ const AddStudentPage = ({addStudentSubmit}) => {
               placeholder="e.g. low to moderate"
               value={energyLevel}
               onChange={(e) => setEnergyLevel(e.target.value)}
+              onFocus={() => handleSpotlightFocus('energy')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('routine') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Daily Routine Notes */}
+            {isSpotlight('routine') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Daily Routine Notes</label>
             <textarea
               className="border border-emerald-300 rounded w-full py-2 px-3"
               placeholder="e.g. likes morning storytime, quiet rest time after lunch"
               value={dailyRoutineNotes}
               onChange={(e) => setDailyRoutineNotes(e.target.value)}
+              onFocus={() => handleSpotlightFocus('routine')}
             />
           </div>
 
-          {/* Interests */}
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('interests') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Interests */}
+            {isSpotlight('interests') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Interests (comma-separated)</label>
             <input
               type="text"
@@ -216,11 +298,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
               placeholder="e.g. books, drawing, nature"
               value={interests.join(', ')}
               onChange={(e) => setInterests(e.target.value.split(',').map(s => s.trim()))}
+              onFocus={() => handleSpotlightFocus('interests')}
             />
           </div>
 
-          {/* Goals */}
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('goals') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Goals */}
+            {isSpotlight('goals') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Goals (comma-separated)</label>
             <input
               type="text"
@@ -228,13 +311,15 @@ const AddStudentPage = ({addStudentSubmit}) => {
               placeholder="e.g. foster creative expression, encourage social confidence"
               value={goals.join(', ')}
               onChange={(e) => setGoals(e.target.value.split(',').map(s => s.trim()))}
+              onFocus={() => handleSpotlightFocus('goals')}
             />
           </div>
 
           {/* Recent Activity */}
           <h3 className="text-2xl mt-6 mb-2 text-emerald-800">Recent Activity</h3>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('activityName') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Activity Name */}
+            {isSpotlight('activityName') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Activity Name</label>
             <input
               type="text"
@@ -244,10 +329,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
               onChange={(e) =>
                 setRecentActivity({ ...recentActivity, name: e.target.value })
               }
+              onFocus={() => handleSpotlightFocus('activityName')}
             />
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('activityResult') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Result */}
+            {isSpotlight('activityResult') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Result</label>
             <select
               className="border border-emerald-300 rounded w-full py-2 px-3"
@@ -255,6 +342,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
               onChange={(e) =>
                 setRecentActivity({ ...recentActivity, result: e.target.value })
               }
+              onFocus={() => handleSpotlightFocus('activityResult')}
             >
               <option value="">Select result</option>
               <option value="succeeded">Succeeded</option>
@@ -264,7 +352,8 @@ const AddStudentPage = ({addStudentSubmit}) => {
             </select>
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('activityDifficulty') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Difficulty Level */}
+            {isSpotlight('activityDifficulty') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Difficulty Level</label>
             <select
               className="border border-emerald-300 rounded w-full py-2 px-3"
@@ -272,6 +361,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
               onChange={(e) =>
                 setRecentActivity({ ...recentActivity, difficulty_level: e.target.value })
               }
+              onFocus={() => handleSpotlightFocus('activityDifficulty')}
             >
               <option value="">Select difficulty</option>
               <option value="easy">Easy</option>
@@ -280,7 +370,8 @@ const AddStudentPage = ({addStudentSubmit}) => {
             </select>
           </div>
 
-          <div className="mb-4">
+          <div className={`mb-4 relative ${isSpotlight('activityObservations') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Observations */}
+            {isSpotlight('activityObservations') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Observations</label>
             <textarea
               className="border border-emerald-300 rounded w-full py-2 px-3"
@@ -289,6 +380,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
               onChange={(e) =>
                 setRecentActivity({ ...recentActivity, observations: e.target.value })
               }
+              onFocus={() => handleSpotlightFocus('activityObservations')}
             />
           </div>
 

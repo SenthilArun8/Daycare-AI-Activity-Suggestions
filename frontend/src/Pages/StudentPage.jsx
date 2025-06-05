@@ -5,6 +5,11 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ActivitySuggestions from '../Components/ActivitySuggestions';
 
+const capitalizeFirstLetter = (str) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 const StudentPage = ({deleteStudent}) => {
     const navigate = useNavigate();
     const {id} = useParams();
@@ -38,9 +43,9 @@ const StudentPage = ({deleteStudent}) => {
 
           <main>
             <div className="bg-white/90 p-6 rounded-lg shadow-md text-center md:text-left mb-6">
-              <div className="text-emerald-700 mb-4 font-semibold">{ student.gender }</div>
+              <div className="text-emerald-700 mb-4 font-semibold">{ capitalizeFirstLetter(student.gender) }</div>
               <h1 className="text-3xl font-bold mb-4 text-emerald-900">
-                { student.name }
+                { capitalizeFirstLetter(student.name) }
               </h1>
               <div className="text-emerald-700 mb-4 flex align-middle justify-center md:justify-start">
                 <FaBirthdayCake className="mr-1 text-orange-700" />
@@ -108,7 +113,7 @@ const StudentPage = ({deleteStudent}) => {
 }; 
 
 const studentLoader = async ({params}) => {
-    const res = await fetch(` https://daycare-ai-activity-suggestions-backend.onrender.com/students/${params.id}`);
+    const res = await fetch(`/api/students/${params.id}`);
     const data = await res.json();
     return data;
 }

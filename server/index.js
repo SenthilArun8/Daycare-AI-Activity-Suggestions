@@ -10,17 +10,19 @@ import nodemailer from 'nodemailer';
 import Student from './models/Student.js'; 
 import { GoogleGenAI } from '@google/genai';
 
+dotenv.config(); // Load env variables from .env, must be before mongodb_uri
+
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
+
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
 
-dotenv.config(); // Load env variables from .env
 
 app.use(cors({
-  origin: 'https://daycare-ai-activity-suggestions.vercel.app',
+  origin: 'http://localhost:3000',
   credentials: true, // if you're using cookies or auth headers
 }));
 app.use(express.json());
@@ -100,29 +102,29 @@ app.delete('/students/:id', async (req, res) => {
   }
 });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'senthilarun08@gmail.com',    // Replace with your email
-    pass: 'xirs uhqa yfml spnm',     // Replace with your email password
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'senthilarun08@gmail.com',    // Replace with your email
+//     pass: 'xirs uhqa yfml spnm',     // Replace with your email password
+//   },
+// });
 
-// Example of sending an email
-const mailOptions = {
-  from: 'your-email@gmail.com',
-  to: 'recipient@example.com',
-  subject: 'Test Email',
-  text: 'This is a test email.',
-};
+// // Example of sending an email
+// const mailOptions = {
+//   from: 'your-email@gmail.com',
+//   to: 'recipient@example.com',
+//   subject: 'Test Email',
+//   text: 'This is a test email.',
+// };
 
-transporter.sendMail(mailOptions, (error, info) => {
-  if (error) {
-    console.log('Error sending email:', error);
-  } else {
-    console.log('Email sent:', info.response);
-  }
-});
+// transporter.sendMail(mailOptions, (error, info) => {
+//   if (error) {
+//     console.log('Error sending email:', error);
+//   } else {
+//     console.log('Email sent:', info.response);
+//   }
+// });
 
 // User registration endpoint
 app.post('/register', async (req, res) => {
@@ -244,6 +246,7 @@ const ai = new GoogleGenAI({
 });
 const model = 'gemini-2.0-flash-001';
 
+const siText1 = {text: `If the toddler failed the activity, provide 5 diverse activity options that support success in the same area. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary and match developmental needs. Avoid using the term "parents" or any other term that specifies the user's role. Use more general language to be inclusive of educators and other users. Only provide these three for each activity: Title of Activity, Why it works, Skills supported`};
 
 // Set up generation config
 const generationConfig = {
@@ -267,12 +270,38 @@ const generationConfig = {
       category: 'HARM_CATEGORY_HARASSMENT',
       threshold: 'OFF',
     }
-  ],
+  ], 
+  // responseMimeType: "application/json",
+  // responseSchema: {
+  //   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  //   "type": "object",
+  //   "properties": {
+  //     "Title of Activity": { "type": "string" },
+  //     "Why it works": { "type": "string" },
+  //     "How to": { "type": "string" },
+  //     "Skills Supported": { "type": "string" }
+  //   },
+  //   "required": [
+  //     "Title of Activity",
+  //     "Why it works",
+  //     "How to",
+  //     "Skills Supported"
+  //   ],
+  //   "additionalProperties": false
+  // },
+  systemInstruction: {
+    parts: [siText1]
+  },
 };
 
 
 app.post('/generate', async (req, res) => {
   const userInput = req.body.prompt;
+
+  console.log('User input:', userInput); // Log the user input for debugging
+  if (!userInput) {
+  return res.status(400).json({ error: 'Prompt is missing from the request body.' });
+  }
 
   try {
     const chat = ai.chats.create({ model, config: generationConfig });
@@ -283,7 +312,16 @@ app.post('/generate', async (req, res) => {
       if (chunk.text) fullResponse += chunk.text;
     }
 
-    res.json({ response: fullResponse });
+    // debugging to check 
+    console.log('Response from AI:', fullResponse);
+    try {
+      const cleaned = fullResponse.replace(/```json|```/gi, '').trim();
+      const parsed = JSON.parse(cleaned);
+      res.json({ response: parsed });
+    } catch (e) {
+      console.error('JSON parse error:', e.message, '\nRaw response:', fullResponse);
+      return res.status(500).json({ error: 'Model did not return valid JSON.' });
+    }
 
   } catch (err) {
     console.error(err);
@@ -291,50 +329,71 @@ app.post('/generate', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at https://daycare-ai-activity-suggestions-backend.onrender.com/`);
+// Update a student
+app.put('/students/:id', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const student = await Student.findOneAndUpdate(
+      { _id: req.params.id, userId: userId },
+      req.body,
+      { new: true }
+    );
+    if (!student) return res.status(404).json({ error: 'Student not found or not authorized' });
+    res.json(student);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to update student' });
+  }
 });
 
-// const msg1Text1 = {text: `{
-//       "id": "87f2",
-//       "toddler_id": "toddler_001",
-//       "toddler_description": "2.5-year-old, physically active, curious, speaks in short sentences",
-//       "name": "Liam",
-//       "age_months": 30,
-//       "gender": "male",
-//       "personality": "adventurous, gets frustrated easily, loves music and animals",
-//       "developmental_stage": "emerging language, starting to show independence",
-//       "recent_activity": {
-//         "name": "building with blocks",
-//         "result": "failed",
-//         "difficulty_level": "moderate",
-//         "observations": "became frustrated when the tower fell"
-//       },
-//       "interests": ["music", "animals", "outdoor play"],
-//       "preferred_learning_style": "hands-on",
-//       "social_behavior": "enjoys parallel play, sometimes mimics older kids",
-//       "energy_level": "high",
-//       "daily_routine_notes": "naps in the afternoon, best mood in the morning",
-//       "goals": [
-//         "improve fine motor skills",
-//         "build frustration tolerance",
-//         "encourage collaborative play"
-//       ],"activity_history": [
-//         {
-//           "name": "finger painting",
-//           "result": "succeded",
-//           "difficulty_level": "easy",
-//           "date": "2025-05-15",
-//           "notes": "enjoyed mixing colors, stayed focused for 20 minutes"
-//         }
-//       ]
-//     },
+// Save an activity to a student's activity_history
+app.post('/students/:id/activity', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const studentId = req.params.id;
+    const activity = req.body.activity;
+    if (!activity) {
+      return res.status(400).json({ error: 'No activity provided.' });
+    }
+    console.log(studentId);
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found or not authorized' });
+    }
+    // Append activity to activity_history
+    student.activity_history = student.activity_history || [];
+    student.activity_history.push(activity);
+    await student.save();
+    res.json({ message: 'Activity saved', activity });
+  } catch (err) {
+    console.error('Error saving activity:', err);
+    res.status(500).json({ error: 'Failed to save activity' });
+  }
+});
 
-// for the activity the toddler failed provide some diverse options of activities to choose from to enable success in the failed activity. Ensure the activities are varied and cater to different aspects of the toddler's development and interests. Present the options in the following format:
+// Delete an activity from a student's activity_history
+app.delete('/students/:studentId/activity/:activityId', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { studentId, activityId } = req.params;
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found or not authorized' });
+    }
+    student.activity_history = student.activity_history.filter(a => a._id.toString() !== activityId);
+    await student.save();
+    res.json({ message: 'Activity deleted' });
+  } catch (err) {
+    console.error('Error deleting activity:', err);
+    res.status(500).json({ error: 'Failed to delete activity' });
+  }
+});
 
-// **Title of Activity**
-// -  *Why it works*
-// - *skills and topics or whatever it works on*`};
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:5000`);
+});
+
+
+// Client-side code to interact with the AI service
 
 const chat = ai.chats.create({
   model: model,

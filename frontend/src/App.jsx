@@ -10,8 +10,10 @@ import StudentPage, {studentLoader}from './Pages/StudentPage';
 import LoginPage from './Pages/LoginPage';
 import RegisterPage from './Pages/RegisterPage';
 import ForgotPasswordPage from './Pages/ForgotPasswordPage';
+import EditStudentPage from './Pages/EditStudentPage';
 import { UserProvider, useUser } from './contexts/UserContext'; // Import the UserProvider
-
+import SavedActivityPage from './Pages/SavedActivityPage'; // Import SavedActivityPage
+import ComingSoonPage from './Pages/ComingSoonPage'; // Import ComingSoonPage
 
 // add new student
 const addStudent = async (newStudent) => {
@@ -22,7 +24,7 @@ const addStudent = async (newStudent) => {
     throw new Error('Please log in first');  // Token not found, so throw an error
   }
 
-  const response = await fetch(' https://daycare-ai-activity-suggestions-backend.onrender.com/students', {
+  const response = await fetch('/api/students', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -41,7 +43,7 @@ const addStudent = async (newStudent) => {
 
 // delete student
 const deleteStudent = async (id) => {
-   const res = await fetch(` https://daycare-ai-activity-suggestions-backend.onrender.com/students/${id}`,{
+   const res = await fetch(`/api/students/${id}`,{
    method: 'DELETE', });
  return;
 }
@@ -63,16 +65,19 @@ const router = createBrowserRouter(
         <Route path='*' element={<NotFoundPage />} />
         <Route path="/add-student" element={<AddStudentPage addStudentSubmit={addStudent}/>} /> 
         <Route path="/students/:id" element={<StudentPage deleteStudent={deleteStudent}/>} loader={studentLoader}/>
+        <Route path="/edit-student/:id" element={<EditStudentPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/students" element={<PrivateRoute><StudentsPage /></PrivateRoute>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/saved-activities/:id" element={<SavedActivityPage />} /> {/* Route for saved activities */}
+        <Route path="/coming-soon" element={<ComingSoonPage />} /> {/* Route for Coming Soon page */}
       </Route>
     )
   );
 
    return (
-    <UserProvider> {/* Wrap the RouterProvider with UserProvider */}
+    <UserProvider>
       <RouterProvider router={router} />
     </UserProvider>
   );

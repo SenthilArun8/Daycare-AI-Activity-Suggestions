@@ -19,7 +19,7 @@ export default function LoginPage() {
   e.preventDefault();
   console.log('Form submitted:', formData); // Log the form data
   try {
-    const response = await axios.post('https://daycare-ai-activity-suggestions-backend.onrender.com/login', formData);
+    const response = await axios.post('/api/login', formData);
 
     console.log('Response:', response.data);  // Log the entire response
 
