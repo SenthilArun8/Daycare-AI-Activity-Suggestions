@@ -80,7 +80,13 @@ const Navbar = () => {
                   <NavLink to="/add-student" className={linkClass}>
                     Add Student
                   </NavLink>
-                </li>                {user && (
+                </li> 
+                {/* <li>
+                  <NavLink to="/privacy-policy" className={linkClass}>
+                    Privacy Policy
+                  </NavLink>
+                </li>                */}
+                {user && (
                   <li className="relative">
                     <Popover>
                       <PopoverButton className={`${linkClass({isActive: false})} font-semibold focus:outline-none flex items-center`}>
