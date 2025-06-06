@@ -102,8 +102,8 @@ const AddStudentPage = ({addStudentSubmit}) => {
     { key: 'social', label: 'Social Behavior', description: 'Describe the toddler\'s social behavior.' },
     { key: 'energy', label: 'Energy Level', description: 'Describe the toddler\'s energy level.' },
     { key: 'routine', label: 'Daily Routine Notes', description: 'Add notes about the toddler\'s daily routine.' },
-    { key: 'interests', label: 'Interests', description: 'List the toddler\'s interests.' },
-    { key: 'goals', label: 'Goals', description: 'List the goals for the toddler.' },
+    { key: 'interests', label: 'Interests', description: 'List the toddler\'s interests, please ensure they are inputted with commas.' },
+    { key: 'goals', label: 'Goals', description: 'List the goals for the toddler, please ensure they are inputted with commas.' },
     { key: 'activityName', label: 'Recent Activity Name', description: 'Enter the name of the most recent activity.' },
     { key: 'activityResult', label: 'Recent Activity Result', description: 'Select the result of the most recent activity.' },
     { key: 'activityDifficulty', label: 'Recent Activity Difficulty', description: 'Select the difficulty level of the most recent activity.' },
@@ -123,8 +123,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
     if (dontShowTutorial) setShowTutorial(false);
   }, [dontShowTutorial]);
 
-  const isSpotlight = (stepKey) => showTutorial && tutorialSteps[tutorialStep].key === stepKey;
-
+  // Update the isSpotlight function
+  const isSpotlight = (stepKey) => {
+    if (!showTutorial) return false;
+    const isCurrentStep = tutorialSteps[tutorialStep].key === stepKey;
+    return isCurrentStep;
+  };
   const stepKeyToIndex = Object.fromEntries(tutorialSteps.map((step, idx) => [step.key, idx]));
 
   const handleSpotlightFocus = (stepKey) => {
@@ -175,9 +179,9 @@ const AddStudentPage = ({addStudentSubmit}) => {
     <div className="min-h-screen flex items-center justify-center bg-[#f5f0e6] py-12 relative">
       {/* Tutorial Overlay */}
       {showTutorial && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 pointer-events-none"></div>
+        <div className="fixed inset-0 bg-black bg-opacity-0 z-30 pointer-events-none" />
       )}
-      <div className="w-full max-w-2xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg relative z-30">
+      <div className="w-full max-w-2xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg relative z-20">
         {/* Top padding before form */}
         <div className="py-4" />
         <form onSubmit={submitForm}>
@@ -428,7 +432,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
         <div className="py-4" />
       </div>
       {/* Side floating buttons */}
-      <div className="hidden md:flex flex-col gap-4 fixed bottom-8 right-8 z-[60]">
+      <div className="hidden md:flex flex-col gap-4 fixed bottom-8 right-8 z-20">
         <button
           className="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded shadow hover:bg-emerald-50 font-semibold"
           onClick={handleScrollToTop}
