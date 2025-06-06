@@ -6,6 +6,8 @@ import { useUser } from '../contexts/UserContext';
 
 const AddStudentPage = ({addStudentSubmit}) => {
 
+    const [interestsInput, setInterestsInput] = useState('');
+    const [goalsInput, setGoalsInput] = useState('');
     const [toddlerId, setToddlerId] = useState('');
     const [toddlerDescription, setToddlerDescription] = useState('');
     const [name, setName] = useState('');
@@ -314,28 +316,32 @@ const AddStudentPage = ({addStudentSubmit}) => {
             />
           </div>
 
-          <div className={`mb-4 relative ${isSpotlight('interests') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Interests */}
+          {/* // Update the interests input field */}
+          <div className={`mb-4 relative ${isSpotlight('interests') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}>
             {isSpotlight('interests') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Interests (comma-separated)</label>
             <input
               type="text"
               className="border border-emerald-300 rounded w-full py-2 px-3"
               placeholder="e.g. books, drawing, nature"
-              value={interests.join(', ')}
-              onChange={(e) => setInterests(e.target.value.split(',').map(s => s.trim()))}
+              value={interestsInput}
+              onChange={(e) => setInterestsInput(e.target.value)}
+              onBlur={(e) => setInterests(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
               onFocus={() => handleSpotlightFocus('interests')}
             />
           </div>
 
-          <div className={`mb-4 relative ${isSpotlight('goals') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Goals */}
+          {/* // Update the goals input field */}
+          <div className={`mb-4 relative ${isSpotlight('goals') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}>
             {isSpotlight('goals') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Goals (comma-separated)</label>
             <input
               type="text"
               className="border border-emerald-300 rounded w-full py-2 px-3"
               placeholder="e.g. foster creative expression, encourage social confidence"
-              value={goals.join(', ')}
-              onChange={(e) => setGoals(e.target.value.split(',').map(s => s.trim()))}
+              value={goalsInput}
+              onChange={(e) => setGoalsInput(e.target.value)}
+              onBlur={(e) => setGoals(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
               onFocus={() => handleSpotlightFocus('goals')}
             />
           </div>
