@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { FaBirthdayCake  } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
+// component used for each student card
+
 const Student = ({ person }) => { // “I expect a prop called person to be passed to this component.”
 
     const [showFullDescription, setShowFullDescription] = useState(false);

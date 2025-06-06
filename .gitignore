@@ -14,6 +14,9 @@ pnpm-debug.log*
 # Node modules
 node_modules/
 
+# Secrets
+server/tokyo-botany-461703-d6-820987ffd71a.json
+
 # Build output
 dist/
 build/

@@ -422,7 +422,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
         <div className="py-4" />
       </div>
       {/* Side floating buttons */}
-      <div className="hidden md:flex flex-col gap-4 fixed bottom-8 right-8 z-50">
+      <div className="hidden md:flex flex-col gap-4 fixed bottom-8 right-8 z-[60]">
         <button
           className="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded shadow hover:bg-emerald-50 font-semibold"
           onClick={handleScrollToTop}
