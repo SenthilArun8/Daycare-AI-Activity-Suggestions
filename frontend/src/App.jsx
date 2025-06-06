@@ -1,5 +1,5 @@
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider, Navigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import React, { useState } from 'react';
 import HomePage from './Pages/HomePage';
 import MainLayout from './Layout/MainLayout';
@@ -14,6 +14,7 @@ import EditStudentPage from './Pages/EditStudentPage';
 import { UserProvider, useUser } from './contexts/UserContext'; // Import the UserProvider
 import SavedActivityPage from './Pages/SavedActivityPage'; // Import SavedActivityPage
 import ComingSoonPage from './Pages/ComingSoonPage'; // Import ComingSoonPage
+// import PrivacyPolicyPage from './Pages/PrivacyPolicyPage';
 
 // add new student
 const addStudent = async (newStudent) => {
@@ -24,7 +25,7 @@ const addStudent = async (newStudent) => {
     throw new Error('Please log in first');  // Token not found, so throw an error
   }
 
-  const response = await fetch('/api/students', {
+  const response = await axiosInstance.get('/students', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -43,7 +44,7 @@ const addStudent = async (newStudent) => {
 
 // delete student
 const deleteStudent = async (id) => {
-   const res = await fetch(`/api/students/${id}`,{
+   const res = await axiosInstance.delete(`/api/students/${id}`,{
    method: 'DELETE', });
  return;
 }
@@ -72,6 +73,7 @@ const router = createBrowserRouter(
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/saved-activities/:id" element={<SavedActivityPage />} /> {/* Route for saved activities */}
         <Route path="/coming-soon" element={<ComingSoonPage />} /> {/* Route for Coming Soon page */}
+        {/* <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />  */}
       </Route>
     )
   );
