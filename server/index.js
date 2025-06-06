@@ -258,7 +258,7 @@ const ai = new GoogleGenAI({
   vertexai: true,
   project: 'gen-lang-client-0993206169',
   location: 'global',
-  authClient: auth
+  auth
 });
 const model = 'gemini-2.0-flash-001';
 
