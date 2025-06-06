@@ -126,13 +126,13 @@ app.delete('/students/:id', async (req, res) => {
   }
 });
 
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: 'senthilarun08@gmail.com',    // Replace with your email
-//     pass: 'xirs uhqa yfml spnm',     // Replace with your email password
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS, 
+  },
+});
 
 // // Example of sending an email
 // const mailOptions = {
@@ -152,23 +152,32 @@ app.delete('/students/:id', async (req, res) => {
 
 // User registration endpoint
 app.post('/register', async (req, res) => {
-  // console.log('Register request received:', req.body); // Log the incoming request
+    const { name, email, password } = req.body;
 
-  const { name, email, password } = req.body;
+    // Basic validation (can be enhanced with a validation library)
+    if (!name || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
 
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ error: 'Email already in use' });
+    try {
+        // Check if user with this email already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            // Return a 409 Conflict status or 400 Bad Request with a clear message
+            return res.status(409).json({ message: 'This email is already registered. Please use a different email or log in.' });
+        }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
-    await newUser.save();
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ name, email, password: hashedPassword });
+        await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (err) {
-    console.error('Error during registration:', err); // Log the error
-    res.status(500).json({ error: 'Server error during registration' });
-  }
+        res.status(201).json({ message: 'Registration successful! You can now log in.' });
+    } catch (err) {
+        console.error('Error during registration:', err);
+        // Generic server error for unexpected issues
+        res.status(500).json({ message: 'Server error during registration. Please try again later.' });
+    }
 });
 
 

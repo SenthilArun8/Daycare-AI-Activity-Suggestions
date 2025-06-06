@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post('/api/forgot-password', { email });
+      const res = await axiosInstance.post('/forgot-password', { email });
       setMessage(res.data.message);
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
