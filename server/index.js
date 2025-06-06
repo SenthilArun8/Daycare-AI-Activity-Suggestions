@@ -219,6 +219,7 @@ app.post('/forgot-password', async (req, res) => {
       return res.status(404).json({ error: 'No account found with that email' });
     }
 
+    // console.log("user found: ", user)
     // Generate a password reset token
     const resetToken = crypto.randomBytes(20).toString('hex');
     // Save the token and expiration date to the user's document
@@ -226,6 +227,7 @@ app.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // Token valid for 1 hour
     await user.save();
 
+    // console.log("password token created: ", resetToken)
     // Send the reset link to the user's email
     const resetLink = `daycare-ai-activity-suggestions.vercel.app/reset-password/${resetToken}`;
     await transporter.sendMail({
@@ -233,7 +235,7 @@ app.post('/forgot-password', async (req, res) => {
       subject: 'Password Reset Request',
       text: `You requested a password reset. Click the link below to reset your password:\n\n${resetLink}`,
     });
-
+    console.log("email sent")
     res.json({ message: 'Password reset link sent to your email' });
   } catch (err) {
     res.status(500).json({ error: 'Server error while processing your request' });

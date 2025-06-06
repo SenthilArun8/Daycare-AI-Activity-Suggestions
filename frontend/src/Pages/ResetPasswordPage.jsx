@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
 export default function ResetPasswordPage() {
@@ -19,7 +19,7 @@ export default function ResetPasswordPage() {
 
     // backend 5000
     try {
-      const res = await axios.post(`/api/reset-password/${token}`, { password });
+      const res = await axiosInstance.post(`/reset-password/${token}`, { password });
       setMessage(res.data.message); // Success message
       setPassword(''); // Clear password field
       // Redirect user to login page after reset
