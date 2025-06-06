@@ -21,14 +21,27 @@ const port = 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 let keyFilePath = null;
 
-if (process.env.GOOGLE_CREDENTIALS) {
-  const credentialsObject = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-  const tempDir = os.tmpdir();
-  keyFilePath = path.join(tempDir, 'gcloud-key.json');
-  fs.writeFileSync(keyFilePath, JSON.stringify(credentialsObject));
-  console.log('✅ Google credentials written to:', keyFilePath);
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    try {
+        // Define a temporary file path
+        // Using os.tmpdir() is crucial for cross-platform compatibility and for temporary files.
+        const tempFilePath = path.join(os.tmpdir(), 'google-credentials.json');
+
+        // Write the JSON content to the temporary file
+        fs.writeFileSync(tempFilePath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+
+        // Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to point to this temporary file
+        process.env.GOOGLE_APPLICATION_CREDENTIALS = tempFilePath;
+        console.log(`Service account credentials loaded from environment variable and written to: ${tempFilePath}`);
+    } catch (error) {
+        console.error('Error processing GOOGLE_APPLICATION_CREDENTIALS_JSON:', error);
+        // It's good practice to exit or throw an error if credentials can't be set
+        // process.exit(1); // Uncomment if failure to load credentials should stop the app
+    }
 } else {
-  console.warn('⚠️ GOOGLE_CREDENTIALS environment variable not set.');
+    console.warn('GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found. Relying on default ADC lookup order.');
+    // If you are absolutely certain that this environment variable is the *only* way
+    // you want to provide credentials on Render, you might consider exiting here too.
 }
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
@@ -258,7 +271,7 @@ const ai = new GoogleGenAI({
   vertexai: true,
   project: 'gen-lang-client-0993206169',
   location: 'global',
-  auth
+  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS // Add this line
 });
 const model = 'gemini-2.0-flash-001';
 

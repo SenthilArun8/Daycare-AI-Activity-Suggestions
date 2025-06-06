@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import axios from '../utils/axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const SavedActivityPage = () => {
@@ -17,7 +17,7 @@ const SavedActivityPage = () => {
       setError('');
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`/api/students/${id}`, {
+        const res = await axios.get(`/students/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStudent(res.data);
