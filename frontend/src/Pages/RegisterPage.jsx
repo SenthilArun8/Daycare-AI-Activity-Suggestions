@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import axiosInstance from '../utils/axios';
+
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -13,7 +17,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');  // Clear error when user starts typing
+    setError('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -21,15 +25,23 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await axios.post('/api/register', {
+      const response = await axiosInstance.post('/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password
       });
-      setSuccess(res.data.message);
+
+      console.log('Response:', response.data); // Log the response
+      setSuccess(response.data.message);
       setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+      
+      // Redirect to login page after successful registration
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      console.error('Registration error:', err);
+      setError(err.response?.data?.message || 'Registration failed');
     }
   };
 
