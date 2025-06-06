@@ -10,19 +10,26 @@ import nodemailer from 'nodemailer';
 import Student from './models/Student.js'; 
 import { GoogleGenAI } from '@google/genai';
 import { GoogleAuth } from 'google-auth-library'
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 dotenv.config(); // Load env variables from .env, must be before mongodb_uri
 
 const app = express();
 const port = 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
-let credentials = null;
-if (process.env.GOOGLE_CREDENTIALS) {
-  credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-} else {
-  console.warn('⚠️ GOOGLE_CREDENTIALS env variable is not set.');
-}
+let keyFilePath = null;
 
+if (process.env.GOOGLE_CREDENTIALS) {
+  const credentialsObject = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+  const tempDir = os.tmpdir();
+  keyFilePath = path.join(tempDir, 'gcloud-key.json');
+  fs.writeFileSync(keyFilePath, JSON.stringify(credentialsObject));
+  console.log('✅ Google credentials written to:', keyFilePath);
+} else {
+  console.warn('⚠️ GOOGLE_CREDENTIALS environment variable not set.');
+}
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
@@ -242,7 +249,7 @@ app.post('/reset-password/:token', async (req, res) => {
 });
 
 const auth = new GoogleAuth({
-  credentials,
+  keyFile: keyFilePath,
   scopes: ['https://www.googleapis.com/auth/cloud-platform'], // or a more specific one
 });
 
