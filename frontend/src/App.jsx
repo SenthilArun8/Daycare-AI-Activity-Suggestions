@@ -1,5 +1,6 @@
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider, Navigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from './utils/axios';  // Update import to use axios instance
 import React, { useState } from 'react';
 import HomePage from './Pages/HomePage';
 import MainLayout from './Layout/MainLayout';
@@ -16,6 +17,18 @@ import SavedActivityPage from './Pages/SavedActivityPage'; // Import SavedActivi
 import ComingSoonPage from './Pages/ComingSoonPage'; // Import ComingSoonPage
 import PrivacyPolicyPage from './Pages/PrivacyPolicyPage';
 
+// Update addStudent function to use axiosInstance
+const addStudent = async (newStudent) => {
+  try {
+    const response = await axiosInstance.post('/students', newStudent);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding student:', error);
+    throw new Error(error.response?.data?.message || 'Failed to add student');
+  }
+};
+
+/*
 // add new student
 const addStudent = async (newStudent) => {
   const token = localStorage.getItem('token');  // Get the JWT token from localStorage
@@ -40,14 +53,17 @@ const addStudent = async (newStudent) => {
 
   return response.json();  // Return the response JSON if successful
 };
+*/
 
-
-// delete student
+// Update deleteStudent function to use axiosInstance
 const deleteStudent = async (id) => {
-   const res = await fetch(`/api/students/${id}`,{
-   method: 'DELETE', });
- return;
-}
+  try {
+    await axiosInstance.delete(`/students/${id}`);
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    throw new Error(error.response?.data?.message || 'Failed to delete student');
+  }
+};
 
 const PrivateRoute = ({ children }) => {
   const { user } = useUser(); // Check if user is available in context
@@ -55,8 +71,6 @@ const PrivateRoute = ({ children }) => {
   // If there's no token, redirect to the login page
   return user ? children : <Navigate to="/login" />;
 };
-
-
 
 function App() {
 const router = createBrowserRouter(

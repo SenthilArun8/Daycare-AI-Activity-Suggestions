@@ -13,8 +13,6 @@ const SamplePage = () => {
   const [sampleError, setSampleError] = useState(null);
 
 
-// ...existing code...
-
 useEffect(() => {
   setSampleLoading(true);
   Promise.all(
@@ -37,8 +35,6 @@ useEffect(() => {
       setSampleLoading(false);
     });
 }, []);
-
-// ...existing code...
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-white px-0 py-0">

@@ -30,14 +30,7 @@ const StudentPage = ({ deleteStudent }) => {
   const isSampleStudent = SAMPLE_STUDENT_IDS.includes(id);
 
   // For Edit: Check if it's a sample student AND user is NOT logged in
-  const canEdit = !isSampleStudent || (isSampleStudent && token);
-  // Simpler way: const canEdit = !isSampleStudent || token;
-  // This means: if it's NOT a sample student, you CAN edit. OR if it IS a sample student AND you have a token, you CAN edit.
-  // This is effectively the same as `!isSampleStudent || token` if sample students are also personal students when logged in.
-  // The original logic `isSampleStudent && !token` was for `isViewingSampleWithoutLogin` to DISABLE.
-  // Let's stick with `isViewingSampleWithoutLogin` to disable, as it's cleaner.
   const isViewingSampleWithoutLogin = isSampleStudent && !token;
-
 
   // For Delete: Check if it's a sample student - if so, ALWAYS disable delete
   const canDelete = !isSampleStudent; // Only allow deletion if NOT a sample student
@@ -95,6 +88,30 @@ const StudentPage = ({ deleteStudent }) => {
                 <h3 className="text-emerald-800 text-lg font-bold mb-2">Age</h3>
                 <p className="mb-4 text-emerald-900">{student.age_months}</p>
               </div>
+
+             {/* --- ENHANCED SECTION FOR RECENT ACTIVITY --- */}
+              {student.recent_activity && student.recent_activity.name && (
+                <div className="bg-white/90 p-6 rounded-lg shadow-md mb-6">
+                  <h3 className="text-emerald-800 text-lg font-bold mb-6">
+                    Recent Activity
+                  </h3>
+                  <div className="space-y-3"> {/* Adds consistent vertical spacing between items */}
+                    <p className="text-emerald-900">
+                      <strong className="font-semibold text-emerald-800">Activity:</strong> {capitalizeFirstLetter(student.recent_activity.name)}
+                    </p>
+                    <p className="text-emerald-900">
+                      <strong className="font-semibold text-emerald-800">Result:</strong> {capitalizeFirstLetter(student.recent_activity.result)}
+                    </p>
+                    <p className="text-emerald-900">
+                      <strong className="font-semibold text-emerald-800">Difficulty:</strong> {capitalizeFirstLetter(student.recent_activity.difficulty_level)}
+                    </p>
+                    <p className="text-emerald-900">
+                      <strong className="font-semibold text-emerald-800">Observations:</strong> {student.recent_activity.observations || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {/* --- END ENHANCED SECTION --- */}
 
               <ActivitySuggestions student={student} />
             </main>
