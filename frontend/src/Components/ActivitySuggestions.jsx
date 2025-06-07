@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from '../utils/axios'; // adjust the path if needed
 import ReactMarkdown from 'react-markdown';
+import promptTemplates from './PromptInstructions.json'
 
 
 const ActivitySuggestions = ({ student }) => {
@@ -8,47 +9,67 @@ const ActivitySuggestions = ({ student }) => {
   const [loading, setLoading] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
+  const [previousSuggestions, setPreviousSuggestions] = useState([]);
 
+
+  // The buildPrompt function now only structures the *student data*
+  // The AI instructions will be added on the backend.
   const buildPrompt = () => {
-    return `{
-  "id": "${student._id}",
-  "toddler_id": "toddler_${student._id}",
-  "toddler_description": "${student.toddler_description}",
-  "name": "${student.name}",
-  "age_months": ${student.age_months},
-  "gender": "${student.gender}",
-  "personality": "${student.personality || 'unknown'}",
-  "developmental_stage": "${student.developmental_stage}",
-  "recent_activity": {
-    "name": "${student.recent_activity.name || 'unknown'}",
-    "result": "${student.recent_activity.result || 'unknown'}",   
-    "difficulty_level": "${student.recent_activity.difficulty_level || 'unknown'}",
-    "observations": "${student.recent_activity.observations || 'unknown'}"
-  },
-  "interests": "${JSON.stringify(student.interests || [])}",
-  "preferred_learning_style": "${JSON.stringify(student.preferred_learning_style || 'unknown')}",
-  "social_behavior": "${student.social_behavior || 'unknown'}",
-  "energy_level": "${student.energy_level || 'unknown'}",
-  "daily_routine_notes": "${student.daily_routine_notes || 'unknown'}",
-  "goals": "${JSON.stringify(student.goals || [])}",
-  "activity_history": "${JSON.stringify(student.activity_history || [])}"
-}
-
-If the toddler failed the activity, provide 5 diverse activity options that support success in the same area. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary and match developmental needs. Avoid using the term "parents" or any other term that specifies the user's role. Use more general language to be inclusive of educators and other users. Only provide these three for each activity: Title of Activity, Why it works, Skills supported. Give the response in JSON format. Do not include any other text or explanations.`;
+    return {
+      id: student._id,
+      toddler_id: `toddler_${student._id}`,
+      toddler_description: student.toddler_description,
+      name: student.name,
+      age_months: student.age_months,
+      personality: student.personality || 'unknown',
+      developmental_stage: student.developmental_stage,
+      recent_activity: {
+        name: student.recent_activity.name || 'unknown',
+        result: student.recent_activity.result || 'unknown',
+        difficulty_level: student.recent_activity.difficulty_level || 'unknown',
+        observations: student.recent_activity.observations || 'unknown',
+      },
+      interests: student.interests || [], // Send as array, not stringified yet
+      preferred_learning_style: student.preferred_learning_style || 'unknown', // Send as is
+      social_behavior: student.social_behavior || 'unknown',
+      energy_level: student.energy_level || 'unknown',
+      goals: student.goals || [], // Send as array
+      activity_history: student.activity_history || [], // Send as array
+    };
   };
 
+  // Update the handleGenerate function
   const handleGenerate = async () => {
     setLoading(true);
-    setCarouselIndex(0); // Reset to first activity when generating new suggestions
+    setCarouselIndex(0);
+    setSaveStatus(''); // Clear save status when regenerating
+
+    const studentData = buildPromptData();
+    // Extract titles from last generated activities for exclusion
+    const excludeTitles = lastGeneratedActivities.map(act => act['Title of Activity'] || act.title).filter(Boolean);
+
     try {
       const res = await axios.post('/generate', {
-        prompt: buildPrompt()
+        studentData: studentData, // Send the student data object
+        excludeActivities: excludeTitles // Send the list of titles to exclude
       });
-      setResponse(res.data.response);
+
+      const incomingCarouselArray = getCarouselArray(res.data.response);
+
+      if (incomingCarouselArray) {
+        setResponse(incomingCarouselArray);
+        // Store the *full* generated activities for future exclusion
+        setLastGeneratedActivities(incomingCarouselArray);
+      } else {
+        setResponse("Error: Model did not return valid activity suggestions.");
+      }
+
     } catch (err) {
-      setResponse("Error: " + err.message);
+      console.error("Error generating activities:", err);
+      setResponse("Error: " + (err.response?.data?.error || err.message));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSaveActivity = async () => {
@@ -129,13 +150,23 @@ If the toddler failed the activity, provide 5 diverse activity options that supp
         </>
       ) : (
         <>
-          <button
-            className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
-            onClick={handleGenerate}
-            disabled={loading}
-          >
-            {loading ? 'Generating...' : 'Suggest Activities'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+              onClick={handleGenerate}
+              disabled={loading}
+            >
+              {loading ? 'Generating...' : 'Suggest Activities'}
+            </button>
+            {previousSuggestions.length > 0 && (
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                onClick={resetSuggestions}
+              >
+                Reset Suggestions
+              </button>
+            )}
+          </div>
           {carouselArray ? (
             <div className="mt-4 border p-4 bg-gray-50 rounded relative flex flex-col items-center">
               <div className="w-full max-w-md">

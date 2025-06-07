@@ -14,6 +14,14 @@ pnpm-debug.log*
 # Node modules
 node_modules/
 
+# Cypress generated files
+cypress/downloads/
+cypress/videos/         # Important to add if you record videos
+cypress/screenshots/    # Important to add if you take screenshots
+cypress/results/        # If you're outputting test results here
+cypress/report/         # If you're generating test reports (e.g., mochawesome)
+.cypress-cache/         # Internal Cypress cache
+
 # Secrets
 server/tokyo-botany-461703-d6-820987ffd71a.json
 

@@ -8,5 +8,8 @@
     "framer-motion": "^12.16.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "cypress": "^14.4.1"
   }
 }

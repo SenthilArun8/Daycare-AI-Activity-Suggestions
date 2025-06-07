@@ -287,7 +287,9 @@ const ai = new GoogleGenAI({
 const model = 'gemini-2.0-flash-001';
 
 const siText1 = {text: `If the toddler failed the activity, provide 5 diverse activity options that support success in the same area. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary and match developmental needs. Avoid using the term "parents" or any other term that specifies the user's role. Use more general language to be inclusive of educators and other users. Only provide these three for each activity: Title of Activity, Why it works, Skills supported`};
-
+const activityPromptInstruction = `
+If the toddler failed the activity, provide 5 diverse activity options that help build towards success in the same area. For such activities, consider the observations especially, then consider the developmental stage, goals, interests, energy level, social behavior. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary. Avoid using the term "parents" or any other term that specifies the user's role. Only provide these three for each activity: Title of Activity, Why it works, Skills supported. Give the response in JSON format. Do not include any other text or explanations.
+`;
 // Set up generation config
 const generationConfig = {
   maxOutputTokens: 8192,
@@ -336,36 +338,51 @@ const generationConfig = {
 
 
 app.post('/generate', async (req, res) => {
-  const userInput = req.body.prompt;
+  const { studentData, excludeActivities } = req.body; // Expect studentData object and array of titles
 
-  console.log('User input:', userInput); // Log the user input for debugging
-  if (!userInput) {
-  return res.status(400).json({ error: 'Prompt is missing from the request body.' });
+  if (!studentData) {
+    return res.status(400).json({ error: 'Student data is missing from the request body.' });
   }
 
+  // Stringify the student data for the prompt
+  const studentDataString = JSON.stringify(studentData, null, 2);
+
+  // Construct the dynamic exclusion part of the prompt
+  let exclusionInstruction = '';
+  if (excludeActivities && excludeActivities.length > 0) {
+    const excludedList = excludeActivities.map(title => `"${title}"`).join(', ');
+    exclusionInstruction = `\nDo not suggest any of the following specific activities: ${excludedList}.`;
+  }
+
+  // Combine all parts into the final user message for the model
+  const fullPrompt = `<span class="math-inline">\{studentDataString\}\\n\\n</span>{activityPromptInstruction}${exclusionInstruction}`;
+
+  console.log('Full prompt sent to AI:', fullPrompt); // Log the full prompt for debugging
+
   try {
+    // Create a new chat session for each request (this is fine for now, or consider stateful chat)
     const chat = ai.chats.create({ model, config: generationConfig });
-    const stream = await chat.sendMessageStream({ message: { text: userInput } });
+    const stream = await chat.sendMessageStream({ message: { text: fullPrompt } });
 
     let fullResponse = '';
     for await (const chunk of stream) {
       if (chunk.text) fullResponse += chunk.text;
     }
 
-    // debugging to check 
     console.log('Response from AI:', fullResponse);
     try {
+      // Attempt to parse the JSON response
       const cleaned = fullResponse.replace(/```json|```/gi, '').trim();
       const parsed = JSON.parse(cleaned);
       res.json({ response: parsed });
     } catch (e) {
-      console.error('JSON parse error:', e.message, '\nRaw response:', fullResponse);
-      return res.status(500).json({ error: 'Model did not return valid JSON.' });
+      console.error('JSON parse error from AI response:', e.message, '\nRaw response:', fullResponse);
+      return res.status(500).json({ error: 'Model did not return valid JSON. Raw response: ' + fullResponse });
     }
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    console.error('Error during AI generation:', err);
+    res.status(500).json({ error: 'Something went wrong with AI generation: ' + err.message });
   }
 });
 

@@ -16,7 +16,7 @@ const studentSchema = new mongoose.Schema({
   toddler_description: String,
   name: String,
   age_months: Number,
-  gender: String,
+  // gender: String,
   personality: String,
   developmental_stage: String,
   recent_activity: {
@@ -29,7 +29,7 @@ const studentSchema = new mongoose.Schema({
   preferred_learning_style: String,
   social_behavior: String,
   energy_level: String,
-  daily_routine_notes: String,
+  // daily_routine_notes: String,
   goals: [String],
   activity_history: [activitySchema],
   environmental_context: {

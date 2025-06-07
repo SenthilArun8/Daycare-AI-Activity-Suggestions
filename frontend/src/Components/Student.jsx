@@ -36,19 +36,36 @@ const Student = ({ person }) => { // “I expect a prop called person to be pass
     <div className='bg-white rounded-xl shadow-md relative'>
       <div className='p-4'>
         <div className='mb-6'>
-          <div className='text-gray-600 my-2'>{capitalizeWords(person.gender)}</div>
+          <div className='pt-2'></div>
+          {/* <div className='text-gray-600 my-2'>{capitalizeWords(person.gender)}</div> */}
           <h3 className='text-xl font-bold'>{capitalizeWords(person.name)}</h3>
         </div>
 
         <div className='mb-5 text-emerald-900'>{description}</div>
 
-        <button
+        {/* <button
           onClick={() => setShowFullDescription((prevState) => !prevState)}
           className='text-emerald-700 mb-5 hover:text-emerald-800 font-semibold'
         >
+          
           {showFullDescription ? 'Less' : 'More'}
-        </button>
+        </button> */}
 
+        {/* Replace the single goals line with this goals section */}
+        <div className='mb-4'>
+          <h3 className='text-emerald-700 mb-2'>Goals:</h3>
+          <ul className='list-disc pl-5'>
+            {Array.isArray(person.goals) ? (
+              person.goals.map((goal, index) => (
+                <li key={index} className='text-emerald-900 mb-1'>
+                  {capitalizeSentence(goal)}
+                </li>
+              ))
+            ) : (
+              <li className='text-emerald-900'>{capitalizeSentence(person.goals)}</li>
+            )}
+          </ul>
+        </div>
         <h3 className='text-emerald-700 mb-2'>Developmental Stage: <span className='text-emerald-900'>{capitalizeSentence(person.developmental_stage)}</span></h3>
 
         <div className='border border-[#d2b48c] mb-5'></div>

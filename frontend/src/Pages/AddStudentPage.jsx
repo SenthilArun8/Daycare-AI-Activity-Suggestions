@@ -12,7 +12,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
     const [toddlerDescription, setToddlerDescription] = useState('');
     const [name, setName] = useState('');
     const [ageMonths, setAgeMonths] = useState('');
-    const [gender, setGender] = useState('');
     const [personality, setPersonality] = useState('');
     const [developmentalStage, setDevelopmentalStage] = useState('');
     const [recentActivity, setRecentActivity] = useState({
@@ -25,7 +24,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
     const [preferredLearningStyle, setPreferredLearningStyle] = useState('');
     const [socialBehavior, setSocialBehavior] = useState('');
     const [energyLevel, setEnergyLevel] = useState('');
-    const [dailyRoutineNotes, setDailyRoutineNotes] = useState('');
     const [goals, setGoals] = useState([]);
     const [activityHistory, setActivityHistory] = useState([
       {
@@ -62,7 +60,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
       toddler_description: toddlerDescription,
       name,
       age_months: ageMonths,
-      gender,
       personality,
       developmental_stage: developmentalStage,
       recent_activity: {
@@ -75,7 +72,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
       preferred_learning_style: preferredLearningStyle,
       social_behavior: socialBehavior,
       energy_level: energyLevel,
-      daily_routine_notes: dailyRoutineNotes,
       goals,
       activity_history: activityHistory,
       userId: userId,  
@@ -94,14 +90,12 @@ const AddStudentPage = ({addStudentSubmit}) => {
   const tutorialSteps = [
     { key: 'name', label: 'Name', description: 'Enter the toddler\'s name here.' },
     { key: 'age', label: 'Age (in months)', description: 'Enter the toddler\'s age in months.' },
-    { key: 'gender', label: 'Gender', description: 'Select the toddler\'s gender.' },
     { key: 'desc', label: 'Description', description: 'Describe the toddler\'s personality and communication.' },
     { key: 'personality', label: 'Personality', description: 'Describe the toddler\'s personality traits.' },
     { key: 'dev', label: 'Developmental Stage', description: 'Describe the toddler\'s developmental stage.' },
     { key: 'learning', label: 'Preferred Learning Style', description: 'Describe how the toddler learns best.' },
     { key: 'social', label: 'Social Behavior', description: 'Describe the toddler\'s social behavior.' },
     { key: 'energy', label: 'Energy Level', description: 'Describe the toddler\'s energy level.' },
-    { key: 'routine', label: 'Daily Routine Notes', description: 'Add notes about the toddler\'s daily routine.' },
     { key: 'interests', label: 'Interests', description: 'List the toddler\'s interests, please ensure they are inputted with commas.' },
     { key: 'goals', label: 'Goals', description: 'List the goals for the toddler, please ensure they are inputted with commas.' },
     { key: 'activityName', label: 'Recent Activity Name', description: 'Enter the name of the most recent activity.' },
@@ -215,23 +209,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
             />
           </div>
 
-          <div className={`mb-4 relative ${isSpotlight('gender') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Gender */}
-            {isSpotlight('gender') && showTutorial && <TutorialTooltip step={tutorialStep} />}
-            <label className="block text-emerald-900 font-bold mb-2">Gender</label>
-            <select
-              className="border border-emerald-300 rounded w-full py-2 px-3"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              required
-              onFocus={() => handleSpotlightFocus('gender')}
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
           <div className={`mb-4 relative ${isSpotlight('desc') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Description */}
             {isSpotlight('desc') && showTutorial && <TutorialTooltip step={tutorialStep} />}
             <label className="block text-emerald-900 font-bold mb-2">Toddler Description</label>
@@ -305,18 +282,6 @@ const AddStudentPage = ({addStudentSubmit}) => {
               value={energyLevel}
               onChange={(e) => setEnergyLevel(e.target.value)}
               onFocus={() => handleSpotlightFocus('energy')}
-            />
-          </div>
-
-          <div className={`mb-4 relative ${isSpotlight('routine') ? 'ring-4 ring-emerald-400 z-50 bg-white p-1' : ''}`}> {/* Daily Routine Notes */}
-            {isSpotlight('routine') && showTutorial && <TutorialTooltip step={tutorialStep} />}
-            <label className="block text-emerald-900 font-bold mb-2">Daily Routine Notes</label>
-            <textarea
-              className="border border-emerald-300 rounded w-full py-2 px-3"
-              placeholder="e.g. likes morning storytime, quiet rest time after lunch"
-              value={dailyRoutineNotes}
-              onChange={(e) => setDailyRoutineNotes(e.target.value)}
-              onFocus={() => handleSpotlightFocus('routine')}
             />
           </div>
 

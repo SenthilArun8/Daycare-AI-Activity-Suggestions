@@ -1,0 +1,3 @@
+{
+    "activityPrompt": "If the toddler failed the activity, provide 5 diverse activity options that help build towards success in the same area. For such activities, consider the observations especially, then consider the deveopkmental stage, goals, interests, energy level, social behvaior. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary. Avoid using the term \"parents\" or any other term that specifies the user's role. Only provide these three for each activity: Title of Activity, Why it works, Skills supported. Give the response in JSON format. Do not include any other text or explanations."
+}
