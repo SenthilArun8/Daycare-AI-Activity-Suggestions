@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Student from '../Components/Student';
-import api from '../utils/axios';
+import axiosInstance from '../utils/axios';
 
 const SAMPLE_STUDENT_IDS = [
   '683d57f853223cfb0c1e5723',
@@ -17,7 +17,7 @@ useEffect(() => {
   setSampleLoading(true);
   Promise.all(
     SAMPLE_STUDENT_IDS.map(id =>
-      api.get(`/students/${id}`)
+      axiosInstance.get(`/students/${id}`)
         .then(response => response.data)
         .catch(error => {
           console.error(`Error fetching student ${id}:`, error);

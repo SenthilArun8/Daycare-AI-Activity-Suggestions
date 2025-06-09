@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import axios from '../utils/axios'; // adjust the path if needed
 import ReactMarkdown from 'react-markdown';
+import axiosInstance from '../utils/axios';
+import { useUser } from '../contexts/UserContext';
 
 
 const ActivitySuggestions = ({ student }) => {
+  // Hooks
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
+  const { token } = useUser();
+
 
   const buildPrompt = () => {
     return `{
@@ -36,7 +41,7 @@ const ActivitySuggestions = ({ student }) => {
     setLoading(true);
     setCarouselIndex(0); // Reset to first activity when generating new suggestions
     try {
-      const res = await axios.post('/generate', {
+      const res = await axiosInstance.post('/generate', {
         prompt: buildPrompt()
       });
       setResponse(res.data.response);
@@ -46,6 +51,7 @@ const ActivitySuggestions = ({ student }) => {
     setLoading(false);
   };
 
+  // Handle Functions 
   const handleSaveActivity = async () => {
     setSaveStatus('');
     const raw = carouselArray[carouselIndex];
@@ -58,9 +64,8 @@ const ActivitySuggestions = ({ student }) => {
     };
     console.log('Saving activity:', activity); // Log activity before saving
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        `/students/${student._id}/activity`,
+      await axiosInstance.post(
+        `/students/${student._id}/saved-activity`,
         { activity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -77,8 +82,7 @@ const ActivitySuggestions = ({ student }) => {
         setCarouselIndex(0);
       }
       // Fetch and log all activities for this student after saving
-      const token2 = localStorage.getItem('token');
-      const res = await axios.get(`/students/${student._id}`, { headers: { Authorization: `Bearer ${token2}` } });
+      const res = await axiosInstance.get(`/students/${student._id}`, { headers: { Authorization: `Bearer ${token}` } });
       console.log('Student activity_history:', res.data.activity_history);
     } catch (err) {
       setSaveStatus('Failed to save activity.');
@@ -142,8 +146,10 @@ const ActivitySuggestions = ({ student }) => {
                     <span className="font-semibold">Why it works:</span> {carouselArray[carouselIndex]['Why it works'] || carouselArray[carouselIndex].why_it_works}
                   </div>
                   <div className="mb-1">
-                    <span className="font-semibold">Skills supported:</span> {carouselArray[carouselIndex]['Skills supported'] || carouselArray[carouselIndex].skills_supported}
-                  </div>
+                   <span className="font-semibold">Skills supported:</span>{' '}
+                   {/* This line is modified to join the array elements */}
+                   {(carouselArray[carouselIndex]['Skills supported'] || carouselArray[carouselIndex].skills_supported || []).join(', ')}
+                 </div>
                   <button
                     className="mt-4 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded transition"
                     onClick={handleSaveActivity}

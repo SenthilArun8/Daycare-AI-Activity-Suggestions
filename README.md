@@ -1,4 +1,4 @@
-# 🧠 Daycare AI Activity Suggestions -- Version 1.1.1
+# 🧠 Daycare AI Activity Suggestions -- Version 1.1.2
 
 A MERN-stack web app designed to assist early childhood educators by generating **personalized, developmentally appropriate activity ideas for toddlers** — powered by **Google Gemini AI**.
 

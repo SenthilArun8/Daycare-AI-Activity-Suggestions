@@ -1,0 +1,22 @@
+# robots.txt for ClassWeave
+
+# Directives for all crawlers
+User-agent: *
+
+# Allow crawling of all pages by default
+Allow: /
+
+# Disallow specific paths that are not meant for public search results
+# Login, registration, and password reset pages typically shouldn't be indexed
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /under-construction # Assuming this is a temporary page
+Disallow: /coming-soon       # Assuming this is a temporary page
+Disallow: /add-student      # This is a form, not content to be indexed
+# Disallow: /students/:id/edit # If your edit forms have unique paths
+
+# Specify the path to your sitemap(s)
+# Replace 'https://daycare-ai-activity-suggestions.vercel.app/' with your actual domain
+Sitemap: https://daycare-ai-activity-suggestions.vercel.app/sitemap.xml

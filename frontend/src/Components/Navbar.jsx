@@ -5,6 +5,11 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import axios from 'axios';
 import axiosInstance from '../utils/axios';
 
+const SAMPLE_STUDENT_IDS = [
+  '683d57f853223cfb0c1e5723',
+  '683d590053223cfb0c1e5724',
+];
+
 const Navbar = () => {
   // Hooks
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,14 +21,28 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchStudents = async () => {
-      if (!user) return;
       setStudentsLoading(true);
       try {
-        // const token = localStorage.getItem('token');
-        const response = await axiosInstance.get('/students', { // Fixed the error for this part 
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setStudents(response.data);
+        let fetchedStudents = [];
+        if (user) {
+          // Fetch user's students if logged in
+          const response = await axiosInstance.get('/students', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          fetchedStudents = response.data;
+        } else {
+          // Fetch sample students if not logged in
+          const sampleStudentRequests = SAMPLE_STUDENT_IDS.map(id =>
+            axiosInstance.get(`/students/${id}`)
+              .then(response => response.data)
+              .catch(error => {
+                console.error(`Error fetching sample student ${id}:`, error);
+                return null;
+              })
+          );
+          fetchedStudents = (await Promise.all(sampleStudentRequests)).filter(Boolean);
+        }
+        setStudents(fetchedStudents);
       } catch (error) {
         console.error('Failed to fetch students:', error);
       } finally {
@@ -32,11 +51,11 @@ const Navbar = () => {
     };
 
     fetchStudents();
-  }, [user]);
+  }, [user, token]);
 
   // Event Handler Function
   const handleLogout = () => {
-    logout() // Clear user from context and localStorage
+    logout(); // Clear user from context and localStorage
     navigate('/login'); // Redirect to login page after logout
   };
 
@@ -45,7 +64,7 @@ const Navbar = () => {
       ? 'bg-black text-[#FFEDD2] hover:bg-[#FFBBA6] hover:text-[#294122] rounded-md px-3 py-2'
       : 'text-[#FFEDD2] hover:bg-[#FFBBA6] hover:text-[#294122] rounded-md px-3 py-2';
 
-    return (
+  return (
     <nav className="bg-[#294122] border-b border-emerald-500 sticky top-0 z-50 w-full">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
@@ -82,47 +101,40 @@ const Navbar = () => {
                   <NavLink to="/add-student" className={linkClass}>
                     Add Student
                   </NavLink>
-                </li> 
-                {/* <li>
-                  <NavLink to="/privacy-policy" className={linkClass}>
-                    Privacy Policy
-                  </NavLink>
-                </li>                */}
-                {user && (
-                  <li className="relative">
-                    <Popover>
-                      <PopoverButton className={`${linkClass({isActive: false})} font-semibold focus:outline-none flex items-center`}>
-                        Saved Activities
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 ml-1">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                      </PopoverButton>
-                      <PopoverPanel className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-lg z-20">
-                        <div className="py-1">
-                          {studentsLoading ? (
-                            <div className="px-4 py-2 text-sm text-gray-700">Loading students...</div>
-                          ) : students.length === 0 ? (
-                            <div className="px-4 py-3 bg-yellow-50 text-yellow-800 text-sm">
-                              Add students to view their saved activities
-                            </div>
-                          ) : (
-                            students.map((student) => (
-                              <button
-                                key={student._id}
-                                onClick={() => {
-                                  navigate(`/saved-activities/${student._id}`);
-                                }}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                              >
-                                {student.name}
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      </PopoverPanel>
-                    </Popover>
-                  </li>
-                )}
+                </li>
+                <li className="relative">
+                  <Popover>
+                    <PopoverButton className={`${linkClass({ isActive: false })} font-semibold focus:outline-none flex items-center`}>
+                      Saved Activities
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 ml-1">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </PopoverButton>
+                    <PopoverPanel className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-lg z-20">
+                      <div className="py-1">
+                        {studentsLoading ? (
+                          <div className="px-4 py-2 text-sm text-gray-700">Loading students...</div>
+                        ) : (user && students.length === 0) ? ( // Condition modified here
+                          <div className="px-4 py-3 bg-yellow-50 text-yellow-800 text-sm">
+                            Add students to view their saved activities
+                          </div>
+                        ) : (
+                          students.map((student) => (
+                            <button
+                              key={student._id}
+                              onClick={() => {
+                                navigate(`/saved-activities/${student._id}`);
+                              }}
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                              {student.name}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </PopoverPanel>
+                  </Popover>
+                </li>
                 {user ? (
                   <li className="relative">
                     <Popover>
@@ -182,32 +194,31 @@ const Navbar = () => {
                   <NavLink to="/add-student" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
                     Add Student
                   </NavLink>
-                </li>                {user && (
-                  <>
-                    <li className="pl-3 text-[#FFEDD2] font-semibold">Saved Activities:</li>
-                    {studentsLoading ? (
-                      <li className="pl-6 text-sm text-[#FFEDD2]">Loading students...</li>
-                    ) : students.length === 0 ? (
-                      <li className="pl-6 py-2 text-sm bg-yellow-50/10 text-yellow-200">
-                        Add students to view their saved activities
+                </li>
+                <>
+                  <li className="pl-3 text-[#FFEDD2] font-semibold">Saved Activities:</li>
+                  {studentsLoading ? (
+                    <li className="pl-6 text-sm text-[#FFEDD2]">Loading students...</li>
+                  ) : (user && students.length === 0) ? ( // Condition modified here
+                    <li className="pl-6 py-2 text-sm bg-yellow-50/10 text-yellow-200">
+                      Add students to view their saved activities
+                    </li>
+                  ) : (
+                    students.map((student) => (
+                      <li key={student._id}>
+                        <button
+                          onClick={() => {
+                            navigate(`/saved-activities/${student._id}`);
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="pl-6 w-full text-left text-[#FFEDD2] hover:bg-[#FFBBA6] hover:text-[#294122] py-2 text-sm"
+                        >
+                          {student.name}
+                        </button>
                       </li>
-                    ) : (
-                      students.map((student) => (
-                        <li key={student._id}>
-                          <button
-                            onClick={() => {
-                              navigate(`/saved-activities/${student._id}`);
-                              setIsMobileMenuOpen(false);
-                            }}
-                            className="pl-6 w-full text-left text-[#FFEDD2] hover:bg-[#FFBBA6] hover:text-[#294122] py-2 text-sm"
-                          >
-                            {student.name}
-                          </button>
-                        </li>
-                      ))
-                    )}
-                  </>
-                )}
+                    ))
+                  )}
+                </>
                 {user ? (
                   <li>
                     <button

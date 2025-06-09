@@ -8,7 +8,7 @@ const activitySchema = new mongoose.Schema({
   notes: String,
   title: String, // For AI activities
   why_it_works: String, // For AI activities
-  skills_supported: String, // For AI activities
+  skills_supported: [String], // For AI activities
 });
 
 const studentSchema = new mongoose.Schema({
@@ -32,7 +32,8 @@ const studentSchema = new mongoose.Schema({
   // daily_routine_notes: String,
   goals: [String],
   activity_history: [activitySchema],
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // Add reference to User
+  saved_activities: [activitySchema], 
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Add reference to User
 });
 
 export default mongoose.model('Student', studentSchema);

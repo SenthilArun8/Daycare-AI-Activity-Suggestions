@@ -359,6 +359,67 @@ app.put('/students/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Save an activity to a student's SAVED activities
+app.post('/students/:id/saved-activity', verifyToken, async (req, res) => { // <-- Changed endpoint path
+  try {
+    const userId = req.user.userId;
+    const studentId = req.params.id;
+    const activity = req.body.activity; // Expecting { activity: { ... } }
+    if (!activity) {
+      return res.status(400).json({ error: 'No activity provided.' });
+    }
+
+    console.log(`Attempting to save activity for student ${studentId} by user ${userId}`);
+    console.log('Activity data:', activity);
+
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found or not authorized.' });
+    }
+
+    // Ensure saved_activities array exists
+    student.saved_activities = student.saved_activities || [];
+
+    // Assign a unique ID to the activity before pushing (Mongoose will do this on save, but for immediate client-side handling, it's good practice)
+    const activityToSave = { ...activity, _id: new mongoose.Types.ObjectId() };
+    student.saved_activities.push(activityToSave);
+
+    await student.save();
+    console.log('Activity successfully saved!');
+    res.status(201).json({ message: 'Activity saved to saved_activities!', activity: activityToSave }); // Return the saved activity with its ID
+  } catch (err) {
+    console.error('Error saving activity to saved_activities:', err);
+    res.status(500).json({ error: 'Failed to save activity.' });
+  }
+});
+
+// Delete an activity from a student's SAVED activities
+app.delete('/students/:studentId/saved-activities/:activityId', verifyToken, async (req, res) => { // <-- New endpoint
+  try {
+    const userId = req.user.userId;
+    const { studentId, activityId } = req.params;
+
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found or not authorized.' });
+    }
+
+    // Filter out the activity to be deleted from the saved_activities array
+    const initialLength = student.saved_activities.length;
+    student.saved_activities = student.saved_activities.filter(a => a._id && a._id.toString() !== activityId);
+
+    if (student.saved_activities.length === initialLength) {
+      return res.status(404).json({ error: 'Activity not found in saved activities.' });
+    }
+
+    await student.save();
+    res.json({ message: 'Activity deleted from saved_activities.' });
+  } catch (err) {
+    console.error('Error deleting saved activity:', err);
+    res.status(500).json({ error: 'Failed to delete saved activity.' });
+  }
+});
+
 // Save an activity to a student's activity_history
 app.post('/students/:id/activity', verifyToken, async (req, res) => {
   try {

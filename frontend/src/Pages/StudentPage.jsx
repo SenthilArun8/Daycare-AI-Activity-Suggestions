@@ -24,7 +24,7 @@ const StudentPage = ({ deleteStudent }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const student = useLoaderData();
-  const { user, token } = useUser();
+  const { token } = useUser();
 
   // Determine if the current student is a sample student
   const isSampleStudent = SAMPLE_STUDENT_IDS.includes(id);
