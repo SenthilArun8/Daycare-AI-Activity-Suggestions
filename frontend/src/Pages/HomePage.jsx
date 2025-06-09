@@ -7,7 +7,7 @@ const HomePage = () => {
     <>
          <Hero
             title='Classweave AI'
-            subtitle='Find personalized activities for toddlers and preschoolers'
+            subtitle='Find personalized activities for toddlers, preschoolers, and students'
          />
          <SamplePage />
          <Students isHome={true} />

@@ -17,6 +17,7 @@ import SavedActivityPage from './Pages/SavedActivityPage'; // Import SavedActivi
 import ComingSoonPage from './Pages/ComingSoonPage'; // Import ComingSoonPage
 import PrivacyPolicyPage from './Pages/PrivacyPolicyPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
+import UnderConstructionPage from './Pages/UnderConstructionPage';
 
 // Update addStudent function to use axiosInstance
 const addStudent = async (newStudent) => {
@@ -90,6 +91,7 @@ const router = createBrowserRouter(
         <Route path="/coming-soon" element={<ComingSoonPage />} /> {/* Route for Coming Soon page */}
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} /> 
         <Route path="/reset-password" element={<ResetPasswordPage/>} />
+        <Route path="/under-construction" element={<UnderConstructionPage/>}/>
       </Route>
     )
   );

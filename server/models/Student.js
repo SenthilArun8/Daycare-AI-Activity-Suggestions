@@ -32,11 +32,6 @@ const studentSchema = new mongoose.Schema({
   // daily_routine_notes: String,
   goals: [String],
   activity_history: [activitySchema],
-  environmental_context: {
-    home_setting: String,
-    siblings: String,
-    parental_involvement: String,
-  },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // Add reference to User
 });
 

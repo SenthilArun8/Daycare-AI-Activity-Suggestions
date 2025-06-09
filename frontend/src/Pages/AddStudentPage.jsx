@@ -349,6 +349,7 @@ const AddStudentPage = ({addStudentSubmit}) => {
               <option value="needs improvement">Needs Improvement</option>
               <option value="not consistent">Not Consistent</option>
               <option value="failed">Struggled</option>
+              <option value="failed">Other</option>
             </select>
           </div>
 

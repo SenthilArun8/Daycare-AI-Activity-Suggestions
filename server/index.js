@@ -3,57 +3,78 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from './models/User.js';
-import bcrypt from 'bcrypt'; // for hashing password
-import jwt from 'jsonwebtoken'; // for secure logins
-import crypto from 'crypto'; 
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import Student from './models/Student.js'; 
+import Student from './models/Student.js';
 import { GoogleGenAI } from '@google/genai';
-import { GoogleAuth } from 'google-auth-library'
+import { GoogleAuth } from 'google-auth-library';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-dotenv.config(); // Load env variables from .env, must be before mongodb_uri
+dotenv.config();
 
 const app = express();
 const port = 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
-let keyFilePath = null;
 
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+// --- Google Auth Configuration ---
+let googleAuthClient;
+
+if (process.env.NODE_ENV === 'production') {
+  // Production environment: Use credentials from GOOGLE_APPLICATION_CREDENTIALS_JSON
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
     try {
-        // Define a temporary file path
-        // Using os.tmpdir() is crucial for cross-platform compatibility and for temporary files.
-        const tempFilePath = path.join(os.tmpdir(), 'google-credentials.json');
-
-        // Write the JSON content to the temporary file
-        fs.writeFileSync(tempFilePath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-
-        // Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to point to this temporary file
-        process.env.GOOGLE_APPLICATION_CREDENTIALS = tempFilePath;
-        console.log(`Service account credentials loaded from environment variable and written to: ${tempFilePath}`);
+      const tempFilePath = path.join(os.tmpdir(), 'google-credentials.json');
+      fs.writeFileSync(tempFilePath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = tempFilePath;
+      console.log(`Service account credentials loaded from environment variable and written to: ${tempFilePath}`);
+      googleAuthClient = new GoogleAuth({
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      });
     } catch (error) {
-        console.error('Error processing GOOGLE_APPLICATION_CREDENTIALS_JSON:', error);
-        // It's good practice to exit or throw an error if credentials can't be set
-        // process.exit(1); // Uncomment if failure to load credentials should stop the app
+      console.error('Error processing GOOGLE_APPLICATION_CREDENTIALS_JSON:', error);
+      process.exit(1); // Exit if production credentials cannot be set
     }
+  } else {
+    console.error('CRITICAL: GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found in production.');
+    process.exit(1); // Exit if production credentials are missing
+  }
 } else {
-    console.warn('GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found. Relying on default ADC lookup order.');
-    // If you are absolutely certain that this environment variable is the *only* way
-    // you want to provide credentials on Render, you might consider exiting here too.
+  // Development environment: Use credentials from GOOGLE_CREDENTIALS
+  if (process.env.GOOGLE_CREDENTIALS) {
+    try {
+      const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+      googleAuthClient = new GoogleAuth({
+        credentials,
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      });
+      console.log('Google credentials loaded from GOOGLE_CREDENTIALS for development.');
+    } catch (error) {
+      console.error('Error parsing GOOGLE_CREDENTIALS:', error);
+      console.warn('⚠️ Falling back to default Google application credentials lookup.');
+      googleAuthClient = new GoogleAuth({
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      });
+    }
+  } else {
+    console.warn('⚠️ GOOGLE_CREDENTIALS env variable is not set for development. Relying on default ADC lookup order.');
+    googleAuthClient = new GoogleAuth({
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    });
+  }
 }
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
-
-
 
 app.use(cors());
 app.use(express.json());
 
 await mongoose.connect(MONGODB_URI)
-.then(() => console.log('✅ Connected to MongoDB'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 
 const verifyToken = (req, res, next) => {
@@ -80,8 +101,8 @@ app.get('/', (req, res) => {
 // Get students for the logged-in user
 app.get('/students', verifyToken, async (req, res) => {
   try {
-    const userId = req.user.userId; // <-- FIXED: use userId from JWT payload
-    const students = await Student.find({ userId: userId });  
+    const userId = req.user.userId;
+    const students = await Student.find({ userId: userId });
     res.json(students);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch students' });
@@ -103,7 +124,7 @@ app.get('/students/:id', async (req, res) => {
 // Add a student
 app.post('/students', verifyToken, async (req, res) => {
   try {
-    const userId = req.user.userId; // <-- FIXED: use userId from JWT payload
+    const userId = req.user.userId;
     const newStudent = new Student({
       ...req.body,
       userId: userId,
@@ -126,30 +147,6 @@ app.delete('/students/:id', async (req, res) => {
   }
 });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS, 
-  },
-});
-
-// // Example of sending an email
-// const mailOptions = {
-//   from: 'your-email@gmail.com',
-//   to: 'recipient@example.com',
-//   subject: 'Test Email',
-//   text: 'This is a test email.',
-// };
-
-// transporter.sendMail(mailOptions, (error, info) => {
-//   if (error) {
-//     console.log('Error sending email:', error);
-//   } else {
-//     console.log('Email sent:', info.response);
-//   }
-// });
-
 // User registration endpoint
 app.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
@@ -162,16 +159,17 @@ app.post('/register', async (req, res) => {
     try {
         // Check if user with this email already exists
         const existingUser = await User.findOne({ email });
+
         if (existingUser) {
             // Return a 409 Conflict status or 400 Bad Request with a clear message
             return res.status(409).json({ message: 'This email is already registered. Please use a different email or log in.' });
-        }
 
-        // Hash the password
+        }
+       // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ name, email, password: hashedPassword });
-        await newUser.save();
 
+        await newUser.save();
         res.status(201).json({ message: 'Registration successful! You can now log in.' });
     } catch (err) {
         console.error('Error during registration:', err);
@@ -181,7 +179,6 @@ app.post('/register', async (req, res) => {
 });
 
 
-// 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   console.log('Login request received:', req.body);
@@ -197,7 +194,7 @@ app.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, email: user.email },
-      process.env.JWT_SECRET, // This must be defined!
+      process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
@@ -208,34 +205,36 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Nodemailer transporter setup (moved here to ensure env variables are loaded)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
-  
+
   try {
-    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'No account found with that email' });
     }
 
-    // console.log("user found: ", user)
-    // Generate a password reset token
     const resetToken = crypto.randomBytes(20).toString('hex');
-    // Save the token and expiration date to the user's document
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // Token valid for 1 hour
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    // console.log("password token created: ", resetToken)
-    // Send the reset link to the user's email
     const resetLink = `daycare-ai-activity-suggestions.vercel.app/reset-password/${resetToken}`;
     await transporter.sendMail({
       to: user.email,
       subject: 'Password Reset Request',
       text: `You requested a password reset. Click the link below to reset your password:\n\n${resetLink}`,
     });
-    console.log("email sent")
+
     res.json({ message: 'Password reset link sent to your email' });
   } catch (err) {
     res.status(500).json({ error: 'Server error while processing your request' });
@@ -247,20 +246,17 @@ app.post('/reset-password/:token', async (req, res) => {
   const { password } = req.body;
 
   try {
-    // Find the user by the reset token and check if it has expired
     const user = await User.findOne({
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }, // Token must not be expired
+      resetPasswordExpires: { $gt: Date.now() },
     });
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid or expired token' });
     }
 
-    // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save the new password and clear the reset token fields
     user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -272,24 +268,19 @@ app.post('/reset-password/:token', async (req, res) => {
   }
 });
 
-const auth = new GoogleAuth({
-  keyFile: keyFilePath,
-  scopes: ['https://www.googleapis.com/auth/cloud-platform'], // or a more specific one
-});
-
-// Initialize Vertex with your Cloud project and location
+// Initialize Vertex AI with the dynamically set authClient
 const ai = new GoogleGenAI({
   vertexai: true,
   project: 'gen-lang-client-0993206169',
   location: 'global',
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS // Add this line
+  authClient: googleAuthClient,
 });
 const model = 'gemini-2.0-flash-001';
 
-const siText1 = {text: `If the toddler failed the activity, provide 5 diverse activity options that support success in the same area. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary and match developmental needs. Avoid using the term "parents" or any other term that specifies the user's role. Use more general language to be inclusive of educators and other users. Only provide these three for each activity: Title of Activity, Why it works, Skills supported`};
-const activityPromptInstruction = `
-If the toddler failed the activity, provide 5 diverse activity options that help build towards success in the same area. For such activities, consider the observations especially, then consider the developmental stage, goals, interests, energy level, social behavior. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary. Avoid using the term "parents" or any other term that specifies the user's role. Only provide these three for each activity: Title of Activity, Why it works, Skills supported. Give the response in JSON format. Do not include any other text or explanations.
-`;
+const siText1 = { text: `If the toddler failed the activity, provide 5 diverse activity options that support success in the same area. If they succeeded then provide 5 diverse activity options to grow and develop the necessary skills depending on their developmental stage, goals, and other appropriate considerations. Ensure suggestions vary and match developmental needs. Avoid using the term "parents" or any other term that specifies the user's role. Use more general language to be inclusive of educators and other users. Only provide these three for each activity: Title of Activity, Why it works, Skills supported` };
+
+const activityPrompt = "Objective and Persona:You are an expert in early childhood development, specializing in creating engaging and developmentally appropriate activities for toddlers. Your task is to provide diverse activity suggestions tailored to a toddler's individual needs and recent performance.Instructions:To complete the task, you need to follow these steps:Analyze the recent_activity result.If the toddler failed the activity:Provide 5 diverse activity options that help build towards success in the same skill area.Prioritize observations from the recent_activity when suggesting new activities.Also consider developmental_stage, goals, interests, energy_level, and social_behavior.If the toddler succeeded in the activity:Provide 5 diverse activity options to help them grow and develop necessary skills further.Consider their developmental_stage, goals, interests, energy_level, and social_behavior.Ensure all activity suggestions are diverse in nature (e.g., varying types of play, skill focus, materials).For each activity, provide only the following three details:Title of Activity (String)Why it works (String)Skills supported (Array of Strings)Constraints:Do not use the term \"parents\" or any other term that specifies the user's role.Do not include any other text or explanations outside of the JSON output.Output Format:{ \"activity_suggestions\": [  {   \"Title of Activity\": \"String\",   \"Why it works\": \"String\",   \"Skills supported\": [\"String\"]  } ]}"
+
 // Set up generation config
 const generationConfig = {
   maxOutputTokens: 8192,
@@ -312,25 +303,7 @@ const generationConfig = {
       category: 'HARM_CATEGORY_HARASSMENT',
       threshold: 'OFF',
     }
-  ], 
-  // responseMimeType: "application/json",
-  // responseSchema: {
-  //   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  //   "type": "object",
-  //   "properties": {
-  //     "Title of Activity": { "type": "string" },
-  //     "Why it works": { "type": "string" },
-  //     "How to": { "type": "string" },
-  //     "Skills Supported": { "type": "string" }
-  //   },
-  //   "required": [
-  //     "Title of Activity",
-  //     "Why it works",
-  //     "How to",
-  //     "Skills Supported"
-  //   ],
-  //   "additionalProperties": false
-  // },
+  ],
   systemInstruction: {
     parts: [siText1]
   },
@@ -338,31 +311,16 @@ const generationConfig = {
 
 
 app.post('/generate', async (req, res) => {
-  const { studentData, excludeActivities } = req.body; // Expect studentData object and array of titles
+  const userInput = req.body.prompt + " " + activityPrompt;
 
-  if (!studentData) {
-    return res.status(400).json({ error: 'Student data is missing from the request body.' });
+  console.log('User input:', userInput);
+  if (!userInput) {
+    return res.status(400).json({ error: 'Prompt is missing from the request body.' });
   }
-
-  // Stringify the student data for the prompt
-  const studentDataString = JSON.stringify(studentData, null, 2);
-
-  // Construct the dynamic exclusion part of the prompt
-  let exclusionInstruction = '';
-  if (excludeActivities && excludeActivities.length > 0) {
-    const excludedList = excludeActivities.map(title => `"${title}"`).join(', ');
-    exclusionInstruction = `\nDo not suggest any of the following specific activities: ${excludedList}.`;
-  }
-
-  // Combine all parts into the final user message for the model
-  const fullPrompt = `<span class="math-inline">\{studentDataString\}\\n\\n</span>{activityPromptInstruction}${exclusionInstruction}`;
-
-  console.log('Full prompt sent to AI:', fullPrompt); // Log the full prompt for debugging
 
   try {
-    // Create a new chat session for each request (this is fine for now, or consider stateful chat)
     const chat = ai.chats.create({ model, config: generationConfig });
-    const stream = await chat.sendMessageStream({ message: { text: fullPrompt } });
+    const stream = await chat.sendMessageStream({ message: { text: userInput } });
 
     let fullResponse = '';
     for await (const chunk of stream) {
@@ -371,18 +329,17 @@ app.post('/generate', async (req, res) => {
 
     console.log('Response from AI:', fullResponse);
     try {
-      // Attempt to parse the JSON response
       const cleaned = fullResponse.replace(/```json|```/gi, '').trim();
       const parsed = JSON.parse(cleaned);
       res.json({ response: parsed });
     } catch (e) {
-      console.error('JSON parse error from AI response:', e.message, '\nRaw response:', fullResponse);
-      return res.status(500).json({ error: 'Model did not return valid JSON. Raw response: ' + fullResponse });
+      console.error('JSON parse error:', e.message, '\nRaw response:', fullResponse);
+      return res.status(500).json({ error: 'Model did not return valid JSON.' });
     }
 
   } catch (err) {
-    console.error('Error during AI generation:', err);
-    res.status(500).json({ error: 'Something went wrong with AI generation: ' + err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
 
@@ -416,7 +373,6 @@ app.post('/students/:id/activity', verifyToken, async (req, res) => {
     if (!student) {
       return res.status(404).json({ error: 'Student not found or not authorized' });
     }
-    // Append activity to activity_history
     student.activity_history = student.activity_history || [];
     student.activity_history.push(activity);
     await student.save();
@@ -449,33 +405,3 @@ app.listen(port, () => {
   const server = app.address ? app.address() : { address: 'localhost', port };
   console.log(`Server is running at http://${server.address}:${server.port}`);
 });
-
-
-// Client-side code to interact with the AI service
-
-// const chat = ai.chats.create({
-//   model: model,
-//   config: generationConfig
-// });
-
-async function sendMessage(message) {
-  const response = await chat.sendMessageStream({
-    message: message
-  });
-  process.stdout.write('stream result: ');
-  for await (const chunk of response) {
-    if (chunk.text) {
-      process.stdout.write(chunk.text);
-    } else {
-      process.stdout.write(JSON.stringify(chunk) + '\n');
-    }
-  }
-}
-
-async function generateContent() {
-  await sendMessage([
-    msg1Text1
-  ]);
-}
-
-// generateContent();

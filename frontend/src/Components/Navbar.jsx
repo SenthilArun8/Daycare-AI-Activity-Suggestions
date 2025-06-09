@@ -6,11 +6,12 @@ import axios from 'axios';
 import axiosInstance from '../utils/axios';
 
 const Navbar = () => {
+  // Hooks
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [students, setStudents] = useState([]);
   const [studentsLoading, setStudentsLoading] = useState(false);
-  const { user, logout } = useUser();
+  const { user, logout, token } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +19,7 @@ const Navbar = () => {
       if (!user) return;
       setStudentsLoading(true);
       try {
-        const token = localStorage.getItem('token');
+        // const token = localStorage.getItem('token');
         const response = await axiosInstance.get('/students', { // Fixed the error for this part 
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -33,6 +34,7 @@ const Navbar = () => {
     fetchStudents();
   }, [user]);
 
+  // Event Handler Function
   const handleLogout = () => {
     logout() // Clear user from context and localStorage
     navigate('/login'); // Redirect to login page after logout

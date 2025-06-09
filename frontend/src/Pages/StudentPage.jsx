@@ -124,6 +124,7 @@ const StudentPage = ({ deleteStudent }) => {
                   Student Goals
                 </h3>
                 <ul className="list-disc list-inside mb-4 text-emerald-900">
+                  {/* If it's a list and there is moer than 1 entry then create bullet points, else... */}
                   {Array.isArray(student.goals) && student.goals.length > 0 ? (
                     student.goals.map((goal, idx) => (
                       <li key={idx} className="text-lg">{goal}</li>
