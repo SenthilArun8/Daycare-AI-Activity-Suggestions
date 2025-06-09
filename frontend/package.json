@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "postbuild": "node ../generate-sitemap.js"
+    "postbuild": "node ./generate-sitemap.js"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
