@@ -1,8 +1,8 @@
 // generate-sitemap.js
-const { SitemapStream, streamToPromise } = require('sitemap');
-const { createWriteStream } = require('fs');
-const path = require('path');
-const axios = require('axios'); // <-- Make sure axios is imported here
+import { SitemapStream, streamToPromise } from 'sitemap';
+import { createWriteStream } from 'fs';
+import path from 'path';
+import axios from 'axios'; // <-- Make sure axios is imported here
 
 // --- IMPORTANT: CONFIGURE THESE FOR YOUR NODE.JS ENVIRONMENT ---
 // This is your public facing domain for the sitemap URLs
