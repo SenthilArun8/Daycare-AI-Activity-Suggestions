@@ -1,6 +1,5 @@
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider, Navigate } from 'react-router-dom';
-import axios from 'axios';
-import axiosInstance from './utils/axios';  // Update import to use axios instance
+import axiosInstance from './utils/axios';  
 import React, { useState } from 'react';
 import HomePage from './Pages/HomePage';
 import MainLayout from './Layout/MainLayout';
@@ -18,6 +17,7 @@ import ComingSoonPage from './Pages/ComingSoonPage'; // Import ComingSoonPage
 import PrivacyPolicyPage from './Pages/PrivacyPolicyPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
 import UnderConstructionPage from './Pages/UnderConstructionPage';
+import CookieConsent from './Components/CookieConsent';
 
 // Update addStudent function to use axiosInstance
 const addStudent = async (newStudent) => {
@@ -99,6 +99,7 @@ const router = createBrowserRouter(
    return (
     <UserProvider>
       <RouterProvider router={router} />
+      <CookieConsent />
     </UserProvider>
   );
 }
