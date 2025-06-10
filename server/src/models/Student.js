@@ -8,7 +8,12 @@ const activitySchema = new mongoose.Schema({
   notes: String,
   title: String, // For AI activities
   why_it_works: String, // For AI activities
-  skills_supported: [String], // For AI activities
+  skills_supported: [
+    {
+      name: { type: String, required: true },
+      category: { type: String, required: true }
+    }
+  ], // For AI activities
 });
 
 const studentSchema = new mongoose.Schema({
@@ -33,6 +38,7 @@ const studentSchema = new mongoose.Schema({
   goals: [String],
   activity_history: [activitySchema],
   saved_activities: [activitySchema], 
+  discarded_activities: [activitySchema], // Store discarded activity suggestions
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Add reference to User
 });
 

@@ -59,7 +59,7 @@ const Students = ({ isHome = false }) => {
       <div className="w-full max-w-6xl p-8 backdrop-blur-md bg-[#FFEDD2]/80 rounded-xl shadow-lg">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-[#162114] text-center w-full">
-            {isHome ? 'Recent Students' : 'All Students'}
+            {isHome ? 'Your Recent Students' : 'All Students'}
           </h2>
         </div>
         {loading && !error ? (

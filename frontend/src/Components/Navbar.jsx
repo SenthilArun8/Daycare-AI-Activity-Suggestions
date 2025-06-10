@@ -105,32 +105,25 @@ const Navbar = () => {
                 <li className="relative">
                   <Popover>
                     <PopoverButton className={`${linkClass({ isActive: false })} font-semibold focus:outline-none flex items-center`}>
-                      Saved Activities
+                      Activities
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 ml-1">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                       </svg>
                     </PopoverButton>
                     <PopoverPanel className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-lg z-20">
                       <div className="py-1">
-                        {studentsLoading ? (
-                          <div className="px-4 py-2 text-sm text-gray-700">Loading students...</div>
-                        ) : (user && students.length === 0) ? ( // Condition modified here
-                          <div className="px-4 py-3 bg-yellow-50 text-yellow-800 text-sm">
-                            Add students to view their saved activities
-                          </div>
-                        ) : (
-                          students.map((student) => (
-                            <button
-                              key={student._id}
-                              onClick={() => {
-                                navigate(`/saved-activities/${student._id}`);
-                              }}
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                            >
-                              {student.name}
-                            </button>
-                          ))
-                        )}
+                        <button
+                          onClick={() => navigate('/saved-activities')}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        >
+                          Saved Activities
+                        </button>
+                        <button
+                          onClick={() => navigate('/discarded-activities')}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        >
+                          Discarded Activities
+                        </button>
                       </div>
                     </PopoverPanel>
                   </Popover>

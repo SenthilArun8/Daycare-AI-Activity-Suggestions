@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   console.log('Form submitted:', formData); // Log the form data
   try {
-    const response = await axiosInstance.post('/login', formData);
+    const response = await axiosInstance.post('/users/login', formData);
 
     console.log('Response:', response.data);  // Log the entire response
 

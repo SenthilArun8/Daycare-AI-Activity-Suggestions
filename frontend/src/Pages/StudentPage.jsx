@@ -5,7 +5,8 @@ import { FaArrowLeft, FaBirthdayCake } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ActivitySuggestions from '../Components/ActivitySuggestions';
-import axios from '../utils/axios';
+import axiosInstance from '../utils/axios';
+
 import { useUser } from '../contexts/UserContext';
 
 // Define your sample student IDs here or import them from a shared constants file
@@ -48,8 +49,7 @@ const StudentPage = ({ deleteStudent }) => {
   };
 
   return (
-    <>
-      {/* */}
+    <div className="pt-20">
       <section>
          {/* Place AdSense ad unit here, ensuring it's only rendered on this content-rich page */}
       <div className="my-8"> {/* Add some spacing around the ad */}
@@ -73,10 +73,10 @@ const StudentPage = ({ deleteStudent }) => {
         </div>
       </section>
 
-      <section className="bg-[#f5f0e6] min-h-screen flex items-center justify-center py-10">
+      <section className="bg-[#f5f0e6] min-h-screen flex items-center justify-center py-20">
         <div className="w-full max-w-6xl p-8 backdrop-blur-md bg-white/70 rounded-xl shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] w-full gap-8">
-            <main>
+            <main className="pt-4 pb-8">
               <div className="bg-white/90 p-6 rounded-lg shadow-md text-center md:text-left mb-6">
                 <div className="text-emerald-700 mb-4 font-semibold">
                   {capitalizeFirstLetter(student.gender)}
@@ -90,7 +90,7 @@ const StudentPage = ({ deleteStudent }) => {
                 </div>
               </div>
 
-              <div className="bg-white/90 p-6 rounded-lg shadow-md mb-6">
+              <div className="bg-white/90 p-6 rounded-lg shadow-md mb-6 flex flex-col gap-4">
                 <h3 className="text-emerald-800 text-lg font-bold mb-6">
                   Toddler Description
                 </h3>
@@ -187,20 +187,40 @@ const StudentPage = ({ deleteStudent }) => {
                 >
                   Delete Student
                 </button>
+                {/* Add Past Activity & View All Past Activities Buttons */}
+                <button
+                  className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded transition w-full"
+                  onClick={() => navigate(`/students/${student._id}/add-past-activity`)}
+                >
+                  + Add Past Activity
+                </button>
+                <button
+                  className="mt-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-semibold px-4 py-2 rounded transition w-full border border-emerald-300"
+                  onClick={() => navigate(`/students/${student._id}/past-activities`)}
+                >
+                  View All Past Activities
+                </button>
               </div>
             </aside>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
 const studentLoader = async ({ params }) => {
   try {
-    const res = await axios.get(`/students/${params.id}`);
+    // Check if it's a sample student
+    const isSampleStudent = SAMPLE_STUDENT_IDS.includes(params.id);
+    
+    // Use the appropriate endpoint based on whether it's a sample student
+    const endpoint = isSampleStudent ? `/students/sample/${params.id}` : `/students/${params.id}`;
+    
+    const res = await axiosInstance.get(endpoint);
     return res.data;
   } catch (error) {
+    console.error('Error fetching student:', error);
     throw new Error('Failed to fetch student');
   }
 };

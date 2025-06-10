@@ -17,7 +17,7 @@ useEffect(() => {
   setSampleLoading(true);
   Promise.all(
     SAMPLE_STUDENT_IDS.map(id =>
-      axiosInstance.get(`/students/${id}`)
+      axiosInstance.get(`/students/sample/${id}`)
         .then(response => response.data)
         .catch(error => {
           console.error(`Error fetching student ${id}:`, error);

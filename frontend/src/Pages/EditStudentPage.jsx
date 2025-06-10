@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import axiosInstance from '../utils/axios';
+import { useUser } from '../contexts/UserContext';
 
 const EditStudentPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { token } = useUser();
   const [loading, setLoading] = useState(true);
   const [student, setStudent] = useState(null);
   const [form, setForm] = useState({
     toddlerDescription: '',
     name: '',
     ageMonths: '',
-    gender: '',
     personality: '',
     developmentalStage: '',
     recentActivity: {
@@ -24,7 +26,6 @@ const EditStudentPage = () => {
     preferredLearningStyle: '',
     socialBehavior: '',
     energyLevel: '',
-    dailyRoutineNotes: '',
     goals: [],
     activityHistory: [
       {
@@ -40,32 +41,30 @@ const EditStudentPage = () => {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await fetch(`/api/students/${id}`);
-        const data = await res.json();
-        setStudent(data);
+        const res = await axiosInstance.get(`/students/${id}`);
+        setStudent(res.data);
         setForm({
-          toddlerDescription: data.toddler_description || '',
-          name: data.name || '',
-          ageMonths: data.age_months || '',
-          gender: data.gender || '',
-          personality: data.personality || '',
-          developmentalStage: data.developmental_stage || '',
+          toddlerDescription: res.data.toddler_description || '',
+          name: res.data.name || '',
+          ageMonths: res.data.age_months || '',
+          personality: res.data.personality || '',
+          developmentalStage: res.data.developmental_stage || '',
           recentActivity: {
-            name: data.recent_activity?.name || '',
-            result: data.recent_activity?.result || '',
-            difficulty_level: data.recent_activity?.difficulty_level || '',
-            observations: data.recent_activity?.observations || ''
+            name: res.data.recent_activity?.name || '',
+            result: res.data.recent_activity?.result || '',
+            difficulty_level: res.data.recent_activity?.difficulty_level || '',
+            observations: res.data.recent_activity?.observations || ''
           },
-          interests: data.interests || [],
-          preferredLearningStyle: data.preferred_learning_style || '',
-          socialBehavior: data.social_behavior || '',
-          energyLevel: data.energy_level || '',
-          dailyRoutineNotes: data.daily_routine_notes || '',
-          goals: data.goals || [],
-          activityHistory: data.activity_history || [{ name: '', result: '', difficulty_level: '', date: '', notes: '' }]
+          interests: res.data.interests || [],
+          preferredLearningStyle: res.data.preferred_learning_style || '',
+          socialBehavior: res.data.social_behavior || '',
+          energyLevel: res.data.energy_level || '',
+          goals: res.data.goals || [],
+          activityHistory: res.data.activity_history || [{ name: '', result: '', difficulty_level: '', date: '', notes: '' }]
         });
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching student:', err);
         toast.error('Failed to fetch student data');
         setLoading(false);
       }
@@ -94,18 +93,12 @@ const EditStudentPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/students/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      await axiosInstance.put(
+        `/students/${id}`,
+        {
           toddler_description: form.toddlerDescription,
           name: form.name,
           age_months: form.ageMonths,
-          gender: form.gender,
           personality: form.personality,
           developmental_stage: form.developmentalStage,
           recent_activity: form.recentActivity,
@@ -113,13 +106,15 @@ const EditStudentPage = () => {
           preferred_learning_style: form.preferredLearningStyle,
           social_behavior: form.socialBehavior,
           energy_level: form.energyLevel,
-          daily_routine_notes: form.dailyRoutineNotes,
           goals: form.goals,
           activity_history: form.activityHistory
-        })
-      });
-      
-      if (!res.ok) throw new Error('Failed to update student');
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       toast.success('Student updated successfully!');
       navigate(`/students/${id}`);
     } catch (err) {
@@ -144,6 +139,8 @@ const EditStudentPage = () => {
     }
   }, [loading]);
 
+  const isSampleStudent = id === '683d57f853223cfb0c1e5723' || id === '683d590053223cfb0c1e5724';
+
   if (loading) return <div className="text-center py-10">Loading...</div>;
   if (!student) return <div className="text-center py-10">Student not found</div>;
 
@@ -153,6 +150,11 @@ const EditStudentPage = () => {
         <div className="py-4" />
         <form onSubmit={handleSubmit}>
           <h2 className="text-3xl text-center font-bold text-emerald-800 mb-8">Edit Toddler Activity Profile</h2>
+          {isSampleStudent && (
+            <div className="mb-4 text-amber-700 bg-amber-100 border border-amber-300 rounded p-4 text-center">
+              Editing is disabled for sample students.
+            </div>
+          )}
 
           <div className="mb-4">
             <label className="block text-emerald-900 font-bold mb-2">Name</label>
@@ -163,6 +165,8 @@ const EditStudentPage = () => {
               value={form.name}
               onChange={handleChange}
               required
+              placeholder="e.g. Sofia"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -175,23 +179,9 @@ const EditStudentPage = () => {
               value={form.ageMonths}
               onChange={handleChange}
               required
+              placeholder="e.g. 36"
+              disabled={isSampleStudent}
             />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-emerald-900 font-bold mb-2">Gender</label>
-            <select
-              name="gender"
-              className="border border-emerald-300 rounded w-full py-2 px-3"
-              value={form.gender}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
           </div>
 
           <div className="mb-4">
@@ -201,6 +191,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.toddlerDescription}
               onChange={handleChange}
+              placeholder="e.g. Calm and observant, communicates clearly in full sentences"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -212,6 +204,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.personality}
               onChange={handleChange}
+              placeholder="e.g. thoughtful, patient, enjoys quiet play"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -222,6 +216,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.developmentalStage}
               onChange={handleChange}
+              placeholder="e.g. expanding vocabulary, shows empathy, beginning to ask 'why' questions"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -233,6 +229,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.preferredLearningStyle}
               onChange={handleChange}
+              placeholder="e.g. visual and auditory"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -244,6 +242,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.socialBehavior}
               onChange={handleChange}
+              placeholder="e.g. prefers small groups, shy with new children"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -255,16 +255,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.energyLevel}
               onChange={handleChange}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-emerald-900 font-bold mb-2">Daily Routine Notes</label>
-            <textarea
-              name="dailyRoutineNotes"
-              className="border border-emerald-300 rounded w-full py-2 px-3"
-              value={form.dailyRoutineNotes}
-              onChange={handleChange}
+              placeholder="e.g. low to moderate"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -277,6 +269,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.interests.join(', ')}
               onChange={(e) => handleArrayChange(e, 'interests')}
+              placeholder="e.g. books, drawing, nature"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -289,6 +283,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.goals.join(', ')}
               onChange={(e) => handleArrayChange(e, 'goals')}
+              placeholder="e.g. foster creative expression, encourage social confidence"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -303,6 +299,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.recentActivity.name}
               onChange={handleRecentActivityChange}
+              placeholder="e.g. storytime circle"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -313,6 +311,7 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.recentActivity.result}
               onChange={handleRecentActivityChange}
+              disabled={isSampleStudent}
             >
               <option value="">Select result</option>
               <option value="succeeded">Succeeded</option>
@@ -329,6 +328,7 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.recentActivity.difficulty_level}
               onChange={handleRecentActivityChange}
+              disabled={isSampleStudent}
             >
               <option value="">Select difficulty</option>
               <option value="easy">Easy</option>
@@ -344,6 +344,8 @@ const EditStudentPage = () => {
               className="border border-emerald-300 rounded w-full py-2 px-3"
               value={form.recentActivity.observations}
               onChange={handleRecentActivityChange}
+              placeholder="e.g. remained attentive throughout and asked questions about the story"
+              disabled={isSampleStudent}
             />
           </div>
 
@@ -351,6 +353,7 @@ const EditStudentPage = () => {
             <button
               className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
               type="submit"
+              disabled={isSampleStudent}
             >
               Save Changes
             </button>

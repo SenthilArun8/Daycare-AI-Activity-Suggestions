@@ -18,6 +18,11 @@ import PrivacyPolicyPage from './Pages/PrivacyPolicyPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
 import UnderConstructionPage from './Pages/UnderConstructionPage';
 import CookieConsent from './Components/CookieConsent';
+import AllSavedActivitiesPage from './Pages/AllSavedActivitiesPage';
+import DiscardedActivitiesPage from './Pages/DiscardedActivitiesPage';
+import StudentDiscardedActivitiesPage from './Pages/StudentDiscardedActivitiesPage';
+import AddPastActivity from './Pages/AddPastActivity';
+import PastActivitiesPage from './Pages/PastActivitiesPage';
 
 // Update addStudent function to use axiosInstance
 const addStudent = async (newStudent) => {
@@ -92,6 +97,11 @@ const router = createBrowserRouter(
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} /> 
         <Route path="/reset-password" element={<ResetPasswordPage/>} />
         <Route path="/under-construction" element={<UnderConstructionPage/>}/>
+        <Route path="/saved-activities" element={<PrivateRoute><AllSavedActivitiesPage /></PrivateRoute>} />
+        <Route path="/discarded-activities" element={<DiscardedActivitiesPage />} />
+        <Route path="/discarded-activities/:id" element={<StudentDiscardedActivitiesPage />} />
+        <Route path="/students/:id/add-past-activity" element={<AddPastActivity />} />
+        <Route path="/students/:id/past-activities" element={<PastActivitiesPage />} />
       </Route>
     )
   );

@@ -15,6 +15,11 @@ const SavedActivityPage = () => {
   const [showCompareCounter, setShowCompareCounter] = useState(false);
   // We'll remove compareRef as it's now internal to ActivityComparison
 
+  // Filter state for skill category
+  const [categoryFilter, setCategoryFilter] = useState('');
+  // Scroll up button state
+  const [showScroll, setShowScroll] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,6 +79,72 @@ const SavedActivityPage = () => {
     });
   };
 
+  // Helper: Normalize skills_supported to array of { name, category }
+  const normalizeSkills = (skills) => {
+    if (!skills) return [];
+    if (Array.isArray(skills) && skills.length > 0 && typeof skills[0] === 'object' && skills[0].name && skills[0].category) {
+      return skills;
+    }
+    if (Array.isArray(skills) && typeof skills[0] === 'string') {
+      return skills.map(s => {
+        const [category, ...rest] = s.split(':');
+        if (rest.length > 0) {
+          return { name: rest.join(':').trim(), category: category.trim() };
+        }
+        return { name: s.trim(), category: 'Other' };
+      });
+    }
+    if (typeof skills === 'string') {
+      try {
+        const arr = JSON.parse(skills);
+        return normalizeSkills(arr);
+      } catch {
+        return [{ name: skills, category: 'Other' }];
+      }
+    }
+    return [];
+  };
+
+  // Color map for skill categories (expanded for all possible categories, matching ActivitySuggestions)
+  const skillCategoryColors = {
+    'Cognitive': 'bg-blue-200 text-blue-800',
+    'Fine Motor': 'bg-green-200 text-green-800',
+    'Gross Motor': 'bg-yellow-200 text-yellow-800',
+    'Language': 'bg-purple-200 text-purple-800',
+    'Social-Emotional': 'bg-pink-200 text-pink-800',
+    'Creative': 'bg-orange-200 text-orange-800',
+    'Other': 'bg-gray-200 text-gray-800',
+    // For legacy/AI categories (fallbacks)
+    'Social-Emotional Skills': 'bg-yellow-300 text-yellow-900',
+    'Cognitive Skills': 'bg-blue-400 text-blue-900',
+    'Literacy Skills': 'bg-green-700 text-green-100',
+    'Physical Skills': 'bg-orange-400 text-orange-900',
+    'Creative Arts/Expression Skills': 'bg-purple-500 text-white',
+    'Language and Communication Skills': 'bg-sky-300 text-sky-900',
+    'Self-Help/Adaptive Skills': 'bg-amber-800 text-amber-100',
+    'Problem-Solving Skills': 'bg-lime-400 text-lime-900',
+    'Sensory Processing Skills': 'bg-gradient-to-r from-pink-400 via-yellow-300 to-blue-400 text-white',
+  };
+
+  // Listen for scroll to show/hide scroll up button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScroll(window.scrollY > 200);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Get all unique categories from activities
+  const allCategories = Array.from(new Set(
+    savedActivities.flatMap(a => normalizeSkills(a.skills_supported).map(s => s.category))
+  ));
+
+  // Filtered activities
+  const filteredActivities = categoryFilter
+    ? savedActivities.filter(a => normalizeSkills(a.skills_supported).some(s => s.category === categoryFilter))
+    : savedActivities;
+
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
   if (!student) return null;
@@ -81,9 +152,22 @@ const SavedActivityPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow mt-8">
       <h2 className="text-2xl font-bold mb-4 text-emerald-800">Saved Activities for {student.name}</h2>
-      {savedActivities && savedActivities.length > 0 ? (
+      <div className="mb-4 flex flex-wrap gap-2 items-center justify-end">
+        <label className="font-semibold text-emerald-900 mr-2">Filter by Category:</label>
+        <select
+          className="border border-emerald-300 rounded px-2 py-1"
+          value={categoryFilter}
+          onChange={e => setCategoryFilter(e.target.value)}
+        >
+          <option value="">All</option>
+          {allCategories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+      {filteredActivities && filteredActivities.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {savedActivities.map((activity) => (
+          {filteredActivities.map((activity) => (
             <div
               key={activity._id || Math.random()}
               className="border rounded-lg p-6 bg-gray-50 shadow transition hover:shadow-lg flex flex-col justify-between h-full relative"
@@ -109,7 +193,20 @@ const SavedActivityPage = () => {
                 </div>
                 <div className="mb-2">
                   <span className="font-semibold">Skills supported:</span>{' '}
-                  {(activity['Skills supported'] || activity.skills_supported || []).join(', ') || <span className="text-gray-400">N/A</span>}
+                  <span className="flex flex-wrap gap-2 mt-1">
+                    {normalizeSkills(activity.skills_supported).map((skill, sidx) => (
+                      <span
+                        key={sidx}
+                        className={`px-2 py-1 rounded text-xs font-semibold mr-1 mb-1 ${skillCategoryColors[skill.category] || skillCategoryColors['Other']}`}
+                        style={skill.category === 'Sensory Processing Skills' ? {
+                          background: 'linear-gradient(90deg, #f472b6 0%, #fde68a 50%, #60a5fa 100%)',
+                          color: '#fff',
+                        } : {}}
+                      >
+                        {skill.name} <span className="opacity-60">({skill.category})</span>
+                      </span>
+                    ))}
+                  </span>
                 </div>
                 {activity.date && (
                   <div className="text-xs text-gray-500 mb-1">
@@ -161,6 +258,17 @@ const SavedActivityPage = () => {
       >
         Back
       </button>
+      {showScroll && (
+        <button
+          className="fixed bottom-8 right-8 bg-emerald-700 hover:bg-emerald-900 text-white p-3 rounded-full shadow-lg z-50 transition"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Scroll to top"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 };
