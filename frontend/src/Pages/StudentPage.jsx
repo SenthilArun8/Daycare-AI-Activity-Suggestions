@@ -52,8 +52,8 @@ const StudentPage = ({ deleteStudent }) => {
     <div className="pt-20">
       <section>
          {/* Place AdSense ad unit here, ensuring it's only rendered on this content-rich page */}
-      <div className="my-8"> {/* Add some spacing around the ad */}
-        <ins
+      {/* <div className="my-8"> Add some spacing around the ad */}
+        {/* <ins
           className="adsbygoogle"
           style={{ display: 'block' }}
           data-ad-client="ca-pub-7943531569653927"
@@ -61,8 +61,8 @@ const StudentPage = ({ deleteStudent }) => {
           data-ad-format="auto"
           data-full-width-responsive="true"
         ></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> */}
+      {/* </div> */}
         <div className="container m-auto py-6 px-6">
           <Link
             to="/students"

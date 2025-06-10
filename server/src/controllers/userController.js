@@ -1,17 +1,26 @@
 // server/src/controllers/userController.js
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'; // Keep this for now, will remove later
 import crypto from 'crypto';
+import { V3 } from 'paseto'; // Use V3 for paseto v3 API
+
 import { transporter } from '../utils/nodemailerTransporter.js'; // Adjust path as needed
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+const PASETO_KEY_BASE64 = process.env.PASETO_LOCAL_KEY;
+if (!PASETO_KEY_BASE64) {
+    console.error('PASETO_LOCAL_KEY is not defined in .env');
+    process.exit(1); // Exit or handle error appropriately
+}
+const pae_key = Buffer.from(PASETO_KEY_BASE64, 'base64'); // Decode from base64
+
 export const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !!password) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
 
@@ -42,11 +51,26 @@ export const loginUser = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Invalid email or password' });
 
-        const token = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
+        const payload = {
+            userId: user._id.toString(), // Convert ObjectId to string for payload
+            email: user.email,
+            name: user.name, // Include user name if you want it in the token
+        };
+
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 1); // 1 day from now
+        payload.exp = expirationDate.toISOString(); // PASETO expects ISO 8601 string
+
+        // Optional: Add a footer for integrity-protected, public information
+        // const footer = {
+        //     aud: 'your-application-audience', // e.g., 'web-app', 'mobile-app'
+        //     iss: 'your-server-issuer',       // e.g., 'my-mern-api'
+        // };
+
+        // --- IMPORTANT CHANGE HERE ---
+        // Use V3.encrypt for paseto v3
+        const token = await V3.encrypt(payload, pae_key);
+        // --- END IMPORTANT CHANGE ---
 
         res.json({ token, user: { name: user.name, email: user.email } });
     } catch (err) {
