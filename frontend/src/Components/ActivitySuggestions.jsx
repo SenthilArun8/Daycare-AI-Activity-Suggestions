@@ -12,7 +12,9 @@ const ActivitySuggestions = ({ student }) => {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
   const { token } = useUser();
-
+  // Track previous prompt and activities for efficient follow-up
+  const [previousPrompt, setPreviousPrompt] = useState(null);
+  const [previousActivities, setPreviousActivities] = useState([]);
 
   const buildPrompt = () => {
     return `{
@@ -37,14 +39,52 @@ const ActivitySuggestions = ({ student }) => {
 
   };
 
+  // Helper to extract array from response if it's an object with a single array property
+  const getCarouselArray = (resp) => {
+    if (Array.isArray(resp)) return resp;
+    if (resp && typeof resp === 'object') {
+      const arrKey = Object.keys(resp).find(
+        k => Array.isArray(resp[k]) && resp[k].length > 0
+      );
+      if (arrKey) return resp[arrKey];
+    }
+    return null;
+  };
+
+  const carouselArray = getCarouselArray(response);
+
+  // Helper to extract activity titles from the last response
+  const getActivityTitles = (arr) => {
+    if (!arr || !Array.isArray(arr)) return [];
+    return arr.map(a => a['Title of Activity'] || a.title || a.name || '').filter(Boolean);
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     setCarouselIndex(0); // Reset to first activity when generating new suggestions
+    let promptToSend = '';
+    let discardedActivities = [];
+    // If this is the first time or student changed, use full prompt
+    if (!previousPrompt || previousPrompt.studentId !== student._id) {
+      promptToSend = buildPrompt();
+      setPreviousPrompt({ studentId: student._id, prompt: promptToSend });
+      setPreviousActivities([]);
+    } else {
+      // On subsequent clicks, only send a short prompt and the previous activities,
+      // but also include the original recent_activity context for the AI
+      const prevTitles = getActivityTitles(previousActivities.length ? previousActivities : carouselArray);
+      promptToSend = `With the same instructions and the same recent_activity as before, give me some more activity suggestions. Do not repeat any of these: ${prevTitles.join(', ')}.`;
+      discardedActivities = prevTitles;
+    }
     try {
       const res = await axiosInstance.post('/ai/generate', {
-        prompt: buildPrompt()
+        prompt: promptToSend,
+        discardedActivities
       });
       setResponse(res.data.response);
+      // Save the activities for next time
+      const arr = getCarouselArray(res.data.response);
+      setPreviousActivities(arr || []);
     } catch (err) {
       setResponse("Error: " + err.message);
     }
@@ -105,6 +145,9 @@ const ActivitySuggestions = ({ student }) => {
     'Problem-Solving Skills': 'bg-lime-400 text-lime-900',
     'Sensory Processing Skills': 'bg-gradient-to-r from-pink-400 via-yellow-300 to-blue-400 text-white',
   };
+
+  // Block save/discard for sample students, but allow generating
+  const isSampleStudent = student && (student._id === '683d57f853223cfb0c1e5723' || student._id === '683d590053223cfb0c1e5724');
 
   // Handle Functions 
   const handleSaveActivity = async () => {
@@ -201,22 +244,6 @@ const ActivitySuggestions = ({ student }) => {
     student.recent_activity.difficulty_level &&
     student.recent_activity.observations;
 
-  // Helper to extract array from response if it's an object with a single array property
-  const getCarouselArray = (resp) => {
-    if (Array.isArray(resp)) return resp;
-    if (resp && typeof resp === 'object') {
-      const arrKey = Object.keys(resp).find(
-        k => Array.isArray(resp[k]) && resp[k].length > 0
-      );
-      if (arrKey) return resp[arrKey];
-    }
-    return null;
-  };
-  const carouselArray = getCarouselArray(response);
-
-  // Block save/discard for sample students, but allow generating
-  const isSampleStudent = student && (student._id === '683d57f853223cfb0c1e5723' || student._id === '683d590053223cfb0c1e5724');
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mt-6">
       <h3 className="text-xl font-bold mb-4">AI Activity Suggestions for {student.name} </h3>
@@ -242,11 +269,6 @@ const ActivitySuggestions = ({ student }) => {
           >
             {loading ? 'Generating...' : 'Suggest Activities'}
           </button>
-          {isSampleStudent && (
-            <div className="mt-2 text-amber-700 bg-amber-100 border border-amber-300 rounded p-2 text-center">
-              Editing, saving, or discarding activities is disabled for sample students.
-            </div>
-          )}
           {carouselArray ? (
             <div className="mt-4 border p-4 bg-gray-50 rounded relative flex flex-col items-center">
               <div className="w-full max-w-md">

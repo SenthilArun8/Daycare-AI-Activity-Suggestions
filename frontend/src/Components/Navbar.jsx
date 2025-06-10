@@ -65,7 +65,7 @@ const Navbar = () => {
       : 'text-[#FFEDD2] hover:bg-[#FFBBA6] hover:text-[#294122] rounded-md px-3 py-2';
 
   return (
-    <nav className="bg-[#294122] border-b border-emerald-500 sticky top-0 z-50 w-full">
+    <nav className="bg-[#294122] border-b border-emerald-500 w-full">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <div className="flex flex-1 items-center justify-between md:items-stretch md:justify-start w-full">
