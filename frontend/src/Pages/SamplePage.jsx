@@ -52,6 +52,8 @@ useEffect(() => {
         </div>
         {/* Right: Vertical stack of sample students */}
         <div className="flex-1 flex flex-col gap-8 justify-center items-end px-6 py-12 md:py-0 bg-white">
+          {/* Add padding before the first card */}
+          <div className="pt-8" />
           {sampleLoading ? (
             <div className="text-emerald-700 text-center">Loading sample students...</div>
           ) : sampleError ? (
@@ -65,6 +67,8 @@ useEffect(() => {
               )
             ))
           )}
+          {/* Add padding after the last card */}
+          <div className="pb-8" />
         </div>
       </div>
     </section>

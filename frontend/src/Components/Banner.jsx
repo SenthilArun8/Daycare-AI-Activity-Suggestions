@@ -35,7 +35,8 @@ export default function Banner() {
           <svg viewBox="0 0 2 2" aria-hidden="true" className="mx-2 inline size-0.5 fill-current">
             <circle r={1} cx={1} cy={1} />
           </svg>
-          Try our new activity suggestions powered by AI!
+          Try our new activity suggestions powered by AI!{' '}
+          <span className="ml-2 font-semibold text-amber-700">(Beta: Page may take a while to load.)</span>
         </p>
         <a
           href="#"
