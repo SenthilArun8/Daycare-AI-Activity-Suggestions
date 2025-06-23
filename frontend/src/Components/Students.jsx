@@ -14,7 +14,7 @@ const Students = ({ isHome = false }) => {
 
   useEffect(() => {
     if (!token) {
-      setError("No token available");
+      setError("No token available, your session has ended; Please Log back in to view students");
       setLoading(false);
       return;
     }

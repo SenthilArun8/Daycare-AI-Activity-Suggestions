@@ -34,7 +34,10 @@ const addStudent = async (newStudent) => {
     throw new Error(error.response?.data?.message || 'Failed to add student');
   }
 };
-
+// https://cps.ca/en/documents/authors-auteurs/early-years-task-force
+// https://www.ontario.ca/page/enhanced-18-month-well-baby-visit
+// https://www.toronto.ca/community-people/children-parenting/pregnancy-and-parenting/parenting/healthy-child-development/social-and-emotional-health/
+//  pesota, newsletter,  spring boot, new langchain agent with google, advanced cookie options, better seo, help page, help sign, 2FA, RAG, make it more inclusive towards students, gamify, inweb credits, badges (unlock all colors off the activity)
 /*
 // add new student
 const addStudent = async (newStudent) => {

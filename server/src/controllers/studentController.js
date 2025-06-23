@@ -270,6 +270,55 @@ export const restoreDiscardedActivity = async (req, res) => {
 };
 
 // Add a past activity to a student's activity_history (for AddPastActivity page)
+// --- STORY SAVE/RETRIEVE/DELETE ---
+export const saveStoryToSavedStories = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const studentId = req.params.id;
+    const { title, content, generatedAt, context, studentName } = req.body;
+    if (!title || !content || !generatedAt) {
+      return res.status(400).json({ error: 'Missing required story fields.' });
+    }
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) return res.status(404).json({ error: 'Student not found or not authorized.' });
+    student.saved_stories.push({ title, content, generatedAt, context, studentName });
+    await student.save();
+    res.status(201).json({ message: 'Story saved successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save story.' });
+  }
+};
+
+export const getSavedStories = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const studentId = req.params.id;
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) return res.status(404).json({ error: 'Student not found or not authorized.' });
+    res.json({ stories: student.saved_stories || [] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch stories.' });
+  }
+};
+
+export const deleteSavedStory = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const studentId = req.params.id;
+    const storyIndex = parseInt(req.params.storyIndex, 10);
+    const student = await Student.findOne({ _id: studentId, userId });
+    if (!student) return res.status(404).json({ error: 'Student not found or not authorized.' });
+    if (!student.saved_stories || storyIndex < 0 || storyIndex >= student.saved_stories.length) {
+      return res.status(400).json({ error: 'Invalid story index.' });
+    }
+    student.saved_stories.splice(storyIndex, 1);
+    await student.save();
+    res.json({ message: 'Story deleted.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete story.' });
+  }
+};
+
 export const addPastActivity = async (req, res) => {
     try {
         const userId = req.user.userId;

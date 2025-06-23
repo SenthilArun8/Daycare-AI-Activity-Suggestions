@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 // Use Routes
 app.use('/users', userRoutes); // Prefix for user routes
 app.use('/students', studentRoutes); // Prefix for student routes
-app.use('/ai', aiRoutes); // Prefix for AI routes
+app.use('/ai', aiRoutes);
 
 // Export app for server.js to use
 export default app;

@@ -1,10 +1,11 @@
 // Import necessary hooks and components
 // import {useState, useEffect} from 'react';
 import { useParams, useLoaderData, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaBirthdayCake } from 'react-icons/fa';
+import { FaArrowLeft, FaBirthdayCake, FaBook } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ActivitySuggestions from '../Components/ActivitySuggestions';
+import StoryGenerator from '../Components/StoryGenerator';
 import axiosInstance from '../utils/axios';
 
 import { useUser } from '../contexts/UserContext';
@@ -97,8 +98,8 @@ const StudentPage = ({ deleteStudent }) => {
                 <p className="mb-4 text-emerald-900">
                   {student.toddler_description}
                 </p>
-                <h3 className="text-emerald-800 text-lg font-bold mb-2">Age</h3>
-                <p className="mb-4 text-emerald-900">{student.age_months}</p>
+                <h3 className="text-emerald-800 text-lg font-bold mb-2">Energy Level</h3>
+                <p className="mb-4 text-emerald-900">{student.energy_level ? capitalizeFirstLetter(student.energy_level) : 'Not specified'}</p>
               </div>
 
              {/* --- ENHANCED SECTION FOR RECENT ACTIVITY --- */}
@@ -200,6 +201,14 @@ const StudentPage = ({ deleteStudent }) => {
                 >
                   View All Past Activities
                 </button>
+                
+                {/* Story Generator Section */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <h3 className="text-lg font-semibold text-emerald-800 mb-3 flex items-center">
+                    <FaBook className="mr-2" /> Story Time
+                  </h3>
+                  <StoryGenerator student={student} />
+                </div>
               </div>
             </aside>
           </div>

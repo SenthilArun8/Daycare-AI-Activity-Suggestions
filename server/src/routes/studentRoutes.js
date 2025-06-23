@@ -13,7 +13,10 @@ import {
     getSampleStudent,
     saveActivityToDiscardedActivities,
     restoreDiscardedActivity,
-    addPastActivity
+    addPastActivity,
+    saveStoryToSavedStories,
+    getSavedStories,
+    deleteSavedStory
 } from '../controllers/studentController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
@@ -37,5 +40,10 @@ router.delete('/:studentId/activity/:activityId', deleteActivityFromHistory);
 router.post('/:id/discarded-activity', saveActivityToDiscardedActivities);
 router.post('/:id/restore-discarded-activity', restoreDiscardedActivity);
 router.post('/:id/past-activities', addPastActivity);
+
+// --- Saved Stories Endpoints ---
+router.post('/:id/save-story', saveStoryToSavedStories);
+router.get('/:id/saved-stories', getSavedStories);
+router.delete('/:id/saved-stories/:storyIndex', deleteSavedStory);
 
 export default router;

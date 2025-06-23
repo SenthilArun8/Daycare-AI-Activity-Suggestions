@@ -1,6 +1,6 @@
-# 🧠 Daycare AI Activity Suggestions -- Version 1.3.6
+# 🧠 Daycare AI Activity Suggestions -- Version 1.4.6
 
-A MERN-stack web app designed to assist early childhood educators by generating **personalized, developmentally appropriate activity ideas for toddlers** — powered by **Google Gemini AI**.
+A comprehensive MERN-stack web application designed for early childhood educators to generate **personalized, developmentally appropriate activities and stories** for toddlers — powered by **Google Gemini AI**.
 
 ---
 
@@ -10,22 +10,66 @@ A MERN-stack web app designed to assist early childhood educators by generating 
 
 ---
 
+## ✨ Features
+
+### 🎯 Personalized Activity Suggestions
+- AI-generated activities tailored to each child's developmental stage and interests
+- Save favorite activities for future reference
+- Track activity history and preferences
+- Filter and search through suggested activities
+
+### 📖 AI-Powered Story Generation
+- Create custom stories based on specific scenarios or contexts
+- Save and manage generated stories
+- Download stories as PDFs for offline use
+- Regenerate stories with the same context
+
+### 👥 Student Management
+- Add and manage student profiles
+- Track developmental milestones and preferences
+- View activity and story history per student
+
+### 🔒 Secure & User-Friendly
+- PASETO-based authentication
+- Responsive design for all devices
+- Intuitive user interface
+
+---
+
 ## 🛠️ Tech Stack
 
-**Frontend**  
-- React  
+### Frontend  
+- React 18+  
 - Tailwind CSS  
 - Vite  
+- React Icons
+- jsPDF (for PDF generation)
 
-**Backend**  
+### Backend  
 - Node.js  
 - Express  
 - MongoDB (Mongoose)  
 
-**Authentication & Services**  
-- JWT + bcrypt (Authentication)  
-- Google Gemini (GenAI for activity suggestions)  
-- Nodemailer (Email services)  
+### AI & Services  
+- Google Vertex AI  
+- PASETO + bcrypt (Authentication)  
+- Nodemailer (Email services)
+- jsPDF (Client-side PDF generation)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+- MongoDB Atlas account or local MongoDB instance
+- Google Gemini API key
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 **Deployment**  
 - Vercel (Frontend)  
@@ -38,7 +82,7 @@ A MERN-stack web app designed to assist early childhood educators by generating 
 - 👶 Add & manage toddler profiles  
 - 🧠 AI-generated activity suggestions tailored to developmental stages  
 - ✉️ Secure password reset via email  
-- 🔒 JWT-protected API endpoints  
+- 🔒 PASETO-protected API endpoints  
 
 ---
 

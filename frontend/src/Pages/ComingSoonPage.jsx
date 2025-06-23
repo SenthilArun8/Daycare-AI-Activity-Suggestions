@@ -15,24 +15,25 @@ export default function ComingSoonPage() {
               <span className="absolute flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full -left-5 ring-4 ring-white">
                 <span className="text-3xl">🧑‍🎓</span>
               </span>
-              <h3 className="font-bold text-2xl text-emerald-700 mb-2">Last Month</h3>
+              <h3 className="font-bold text-2xl text-emerald-700 mb-2">Spring 2025</h3>
               <p className="text-lg text-[#294122]">Student Dashboard launched</p>
             </li>
             <li className="mb-16 ml-8">
               <span className="absolute flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full -left-5 ring-4 ring-white">
                 <span className="text-3xl">📊</span>
               </span>
-              <h3 className="font-bold text-2xl text-emerald-700 mb-2">This Month</h3>
+              <h3 className="font-bold text-2xl text-emerald-700 mb-2">June 2025</h3>
               <ul className="list-disc pl-7 text-lg text-[#294122]">
                 <li>Open beta testing</li>
                 <li>End-to-end testing and more integrations</li>
+                <li>Performance improvements and mobile UI polish</li>
               </ul>
             </li>
             <li className="ml-8 mb-16">
               <span className="absolute flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full -left-5 ring-4 ring-white">
                 <span className="text-3xl">📈</span>
               </span>
-              <h3 className="font-bold text-2xl text-emerald-700 mb-2">Future</h3>
+              <h3 className="font-bold text-2xl text-emerald-700 mb-2">Coming Soon</h3>
               <ul className="list-disc pl-7 text-lg text-[#294122] space-y-2">
                 <li>
                   <span className="font-semibold">Student Progress Tracking Dashboard</span>

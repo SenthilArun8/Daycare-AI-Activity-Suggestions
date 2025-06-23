@@ -30,6 +30,6 @@ export const verifyToken = async (req, res, next) => { // Make this async
         next();
     } catch (err) {
         console.error("PASETO Verification Error:", err); // Log the specific error
-        return res.status(400).json({ error: 'Invalid token.' });
+        return res.status(400).json({ error: 'Invalid token. Try signing back in' });
     }
 };

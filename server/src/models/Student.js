@@ -16,6 +16,14 @@ const activitySchema = new mongoose.Schema({
   ], // For AI activities
 });
 
+const storySchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  generatedAt: { type: Date, required: true },
+  context: String,
+  studentName: String
+});
+
 const studentSchema = new mongoose.Schema({
   toddler_id: String,
   toddler_description: String,
@@ -39,6 +47,7 @@ const studentSchema = new mongoose.Schema({
   activity_history: [activitySchema],
   saved_activities: [activitySchema], 
   discarded_activities: [activitySchema], // Store discarded activity suggestions
+  saved_stories: [storySchema], // Store saved stories for the student
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Add reference to User
 });
 
