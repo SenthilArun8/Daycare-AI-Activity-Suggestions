@@ -23,6 +23,7 @@ import DiscardedActivitiesPage from './Pages/DiscardedActivitiesPage';
 import StudentDiscardedActivitiesPage from './Pages/StudentDiscardedActivitiesPage';
 import AddPastActivity from './Pages/AddPastActivity';
 import PastActivitiesPage from './Pages/PastActivitiesPage';
+import SampleStories from './Pages/SampleStories';
 
 // Update addStudent function to use axiosInstance
 const addStudent = async (newStudent) => {
@@ -105,6 +106,7 @@ const router = createBrowserRouter(
         <Route path="/discarded-activities/:id" element={<StudentDiscardedActivitiesPage />} />
         <Route path="/students/:id/add-past-activity" element={<AddPastActivity />} />
         <Route path="/students/:id/past-activities" element={<PastActivitiesPage />} />
+        <Route path="/sample-stories" element={<SampleStories />} />
       </Route>
     )
   );

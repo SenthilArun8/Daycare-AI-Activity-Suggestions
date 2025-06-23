@@ -84,7 +84,7 @@ export const generateAiActivity = async (req, res) => {
 
 // Story generation prompt template
 const storyPromptTemplate = (student, context) => `
-You are an expert children's story writer specializing in creating engaging, age-appropriate stories for young children.
+You are an expert story writer at a daycare specializing in creating engaging, age-appropriate stories for the parents and guardians of children and toddlers.
 
 Create a personalized story based on the following details:
 
@@ -95,7 +95,31 @@ Context/Scenario: ${context}
 Story Requirements:
 1. The story should be engaging and appropriate for a the parents of the child.
 2. Incorporate the provided context as the main theme of the story.
-3. Keep the story positive, educational, and fun.
+3. Keep the story positive, educational, fun and a means to convey the activity to the parent.
+4. The story should be between 100-200 words.
+5. Include a clear beginning, middle, and end.
+6. Be creative in your story but do not digress from the main context too much
+7. The purpose of this story is to create a post for the parent for the child to view about what activity their child had done that day in a creative, engaging, and professional manner. 
+8. DO NOT create characters and stay as true to the facts as possible
+
+Format the response as a JSON object with the following structure:
+{
+  "title": "The Title of the Story",
+  "content": "The full story content here..."
+}
+`;
+
+const sampleStoryPromptTemplate = (context) => `
+You are an expert story writer at a daycare specializing in creating engaging, age-appropriate stories for the parents and guardians of children and toddlers.
+
+Create a personalized story based on the following details:
+
+Context/Scenario: ${context}
+
+Story Requirements:
+1. The story should be engaging and appropriate for a the parents of the child.
+2. Incorporate the provided context as the main theme of the story.
+3. Keep the story positive, educational, fun and a means to convey the activity to the parent.
 4. The story should be between 100-200 words.
 5. Include a clear beginning, middle, and end.
 6. Be creative in your story but do not digress from the main context too much
@@ -110,11 +134,13 @@ Format the response as a JSON object with the following structure:
 `;
 
 export const generateStory = async (req, res) => {
-    const { studentName, age, context,} = req.body;
+    const { studentName, age, context, isSampleStory } = req.body;
 
-    if (!studentName || !age || !context) {
+    if (!context || (isSampleStory === undefined && (!studentName || !age))) {
         return res.status(400).json({ 
-            error: 'Missing required fields: studentName, age, and context are required.' 
+            error: isSampleStory 
+                ? 'Missing required field: context is required.' 
+                : 'Missing required fields: studentName, age, and context are required.'
         });
     }
 
@@ -125,10 +151,12 @@ export const generateStory = async (req, res) => {
         }
         
         const ai = getAiInstance(googleAuthClient);
-        const prompt = storyPromptTemplate(
-            { name: studentName, age_months: age },
-            context
-        );
+        const prompt = isSampleStory
+            ? sampleStoryPromptTemplate(context)
+            : storyPromptTemplate(
+                { name: studentName, age_months: age },
+                context
+              );
 
         console.log('Generating story with prompt:', prompt);
         
